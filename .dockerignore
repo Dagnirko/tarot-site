@@ -1,0 +1,15 @@
+node_modules
+__pycache__
+*.pyc
+.env
+.git
+.gitignore
+README.md
+.vscode
+.idea
+dist
+build
+*.log
+tmp
+temp
+.DS_Store
