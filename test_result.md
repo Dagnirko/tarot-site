@@ -157,6 +157,18 @@ backend:
           agent: "testing"
           comment: "Не тестировалось - не входит в текущий фокус тестирования. Поле blocks добавлено в модель, но функционал визуального редактора не тестировался."
 
+  - task: "Blog API - Public endpoints"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ ТЕСТИРОВАНИЕ ЗАВЕРШЕНО: Blog API endpoints работают корректно. Протестированы: GET /api/blog (получение всех опубликованных постов), GET /api/blog/{id} (получение отдельного поста), POST /api/admin/blog (создание тестового поста). Создан тестовый пост 'Тестовый пост блога' с русским контентом, пост корректно сохраняется и возвращается через публичные endpoints."
+
 frontend:
   - task: "Blog public pages"
     implemented: true
