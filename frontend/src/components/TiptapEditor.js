@@ -83,9 +83,7 @@ const MenuBar = ({ editor }) => {
 const TiptapEditor = ({ value, onChange }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        link: false, // Disable default link to avoid conflicts
-      }),
+      StarterKit,
       Underline,
       Link.configure({
         openOnClick: false,
