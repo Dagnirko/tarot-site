@@ -262,12 +262,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Services API - CRUD endpoints"
-    - "User Preferences API - Admin theme"
     - "Blog public pages"
     - "Services management - AdminServices"
     - "AdminThemeContext and theme toggle"
-  stuck_tasks: []
+  stuck_tasks:
+    - "External URL configuration - backend not accessible via https://demobackend.emergentagent.com/api"
   test_all: false
   test_priority: "high_first"
 
