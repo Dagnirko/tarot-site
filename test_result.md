@@ -114,27 +114,33 @@ user_problem_statement: "
 backend:
   - task: "Services API - CRUD endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Создана модель Service для управления услугами на главной странице. Добавлены endpoints: GET /api/services (публичный, видимые услуги), GET /api/admin/services (все услуги), POST /api/admin/services, PUT /api/admin/services/{id}, DELETE /api/admin/services/{id}. Поля: id, title, description, icon (lucide-react), order, visible."
+        - working: true
+          agent: "testing"
+          comment: "✅ ТЕСТИРОВАНИЕ ЗАВЕРШЕНО: Все Services API endpoints работают корректно. Протестированы: GET /api/services (публичный доступ к видимым услугам), GET /api/admin/services (все услуги), POST /api/admin/services (создание услуги с тестовыми данными 'Таро Расклады'), PUT /api/admin/services/{id} (обновление услуги), DELETE /api/admin/services/{id} (удаление услуги). Все операции CRUD выполняются успешно, данные корректно сохраняются и возвращаются."
 
   - task: "User Preferences API - Admin theme"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Создана модель UserPreferences для хранения настроек пользователя. Добавлены endpoints: GET /api/admin/preferences, PUT /api/admin/preferences. Поле admin_theme для хранения выбранной темы админки (light/dark)."
+        - working: true
+          agent: "testing"
+          comment: "✅ ТЕСТИРОВАНИЕ ЗАВЕРШЕНО: User Preferences API работает корректно с авторизацией. Протестированы: GET /api/admin/preferences (получение настроек пользователя, возвращает тему по умолчанию 'light'), PUT /api/admin/preferences (обновление темы на 'dark'). Авторизация через JWT токен работает правильно, настройки сохраняются и возвращаются корректно."
 
   - task: "HomePageContent - blocks field"
     implemented: true
@@ -142,11 +148,14 @@ backend:
     file: "backend/server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Добавлено поле blocks в модель HomePageContent для поддержки визуального редактора главной страницы. Использует ту же структуру BlockContent, что и PageEditor."
+        - working: "NA"
+          agent: "testing"
+          comment: "Не тестировалось - не входит в текущий фокус тестирования. Поле blocks добавлено в модель, но функционал визуального редактора не тестировался."
 
 frontend:
   - task: "Blog public pages"
