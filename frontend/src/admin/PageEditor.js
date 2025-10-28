@@ -176,18 +176,9 @@ const PageEditor = () => {
       case 'text':
         return (
           <div data-testid={`text-editor-${block.id}`}>
-            <ReactQuill
+            <TiptapEditor
               value={block.content.html || ''}
               onChange={(html) => updateBlock(block.id, { html })}
-              theme="snow"
-              modules={{
-                toolbar: [
-                  ['bold', 'italic', 'underline', 'strike'],
-                  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                  ['link'],
-                  ['clean']
-                ]
-              }}
             />
           </div>
         );
