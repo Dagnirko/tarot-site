@@ -143,10 +143,8 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Replace ReactQuill with Tiptap for React 19 compatibility"
-  stuck_tasks:
-    - "Replace ReactQuill with Tiptap for React 19 compatibility"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
