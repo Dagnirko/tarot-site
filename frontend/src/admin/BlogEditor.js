@@ -198,12 +198,9 @@ const BlogEditor = () => {
                 Содержание
               </label>
               <div data-testid="post-content-editor">
-                <ReactQuill
+                <TiptapEditor
                   value={postData.content}
                   onChange={(content) => setPostData({ ...postData, content })}
-                  theme="snow"
-                  modules={modules}
-                  style={{ minHeight: '400px' }}
                 />
               </div>
             </CardContent>
