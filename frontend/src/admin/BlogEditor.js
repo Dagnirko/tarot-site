@@ -7,8 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Image as ImageIcon, Tag } from 'lucide-react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import TiptapEditor from '@/components/TiptapEditor';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
