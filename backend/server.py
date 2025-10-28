@@ -176,6 +176,7 @@ class HomePageContent(BaseModel):
     hero_subtitle: str = ""
     hero_image: Optional[str] = ""
     sections: List[Dict[str, Any]] = []  # Flexible sections for home page
+    blocks: List[BlockContent] = []  # Visual editor blocks
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class HomePageContentUpdate(BaseModel):
