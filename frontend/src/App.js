@@ -14,6 +14,7 @@ import AdminSettings from '@/admin/AdminSettings';
 import AdminBlog from '@/admin/AdminBlog';
 import BlogEditor from '@/admin/BlogEditor';
 import AdminHomePage from '@/admin/AdminHomePage';
+import AdminServices from '@/admin/AdminServices';
 import '@/App.css';
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/admin/blog/new" element={<BlogEditor />} />
           <Route path="/admin/blog/edit/:postId" element={<BlogEditor />} />
           <Route path="/admin/home" element={<AdminHomePage />} />
+          <Route path="/admin/services" element={<AdminServices />} />
           <Route path="/admin/contacts" element={<AdminContacts />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
         </Routes>
