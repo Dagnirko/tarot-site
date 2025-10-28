@@ -463,6 +463,20 @@ h1, h2, h3, h4, h5, h6 {
   fill: var(--text-secondary);
 }
 
+/* Select dropdown improvements - better contrast */
+[role="option"][data-state="checked"],
+[role="option"]:hover,
+[role="option"]:focus {
+  background: var(--button-bg) !important;
+  color: var(--button-text) !important;
+}
+
+[role="option"][data-highlighted] {
+  background: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  opacity: 0.9;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .glass-card {

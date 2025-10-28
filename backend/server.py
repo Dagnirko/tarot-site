@@ -141,6 +141,49 @@ class MediaItem(BaseModel):
     size: int
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class BlogPost(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    content: str  # HTML content
+    excerpt: Optional[str] = ""  # Short description
+    image_url: Optional[str] = ""
+    tags: List[str] = []
+    published: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class BlogPostCreate(BaseModel):
+    title: str
+    content: str
+    excerpt: Optional[str] = ""
+    image_url: Optional[str] = ""
+    tags: List[str] = []
+    published: bool = False
+
+class BlogPostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    excerpt: Optional[str] = None
+    image_url: Optional[str] = None
+    tags: Optional[List[str]] = None
+    published: Optional[bool] = None
+
+class HomePageContent(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = "home_page_content"
+    hero_title: str = "Добро пожаловать"
+    hero_subtitle: str = ""
+    hero_image: Optional[str] = ""
+    sections: List[Dict[str, Any]] = []  # Flexible sections for home page
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class HomePageContentUpdate(BaseModel):
+    hero_title: Optional[str] = None
+    hero_subtitle: Optional[str] = None
+    hero_image: Optional[str] = None
+    sections: Optional[List[Dict[str, Any]]] = None
+
 # ============= UTILITIES =============
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -419,6 +462,110 @@ async def get_media():
         if isinstance(item.get('created_at'), str):
             item['created_at'] = datetime.fromisoformat(item['created_at'])
     return media
+
+# ============= BLOG ROUTES =============
+
+@api_router.get("/blog", response_model=List[BlogPost])
+async def get_published_blog_posts():
+    """Get all published blog posts for public view"""
+    posts = await db.blog_posts.find({"published": True}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for post in posts:
+        if isinstance(post.get('created_at'), str):
+            post['created_at'] = datetime.fromisoformat(post['created_at'])
+        if isinstance(post.get('updated_at'), str):
+            post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    return posts
+
+@api_router.get("/blog/{post_id}", response_model=BlogPost)
+async def get_blog_post(post_id: str):
+    """Get a single published blog post"""
+    post = await db.blog_posts.find_one({"id": post_id, "published": True}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    if isinstance(post.get('created_at'), str):
+        post['created_at'] = datetime.fromisoformat(post['created_at'])
+    if isinstance(post.get('updated_at'), str):
+        post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    return post
+
+@api_router.get("/admin/blog", response_model=List[BlogPost])
+async def get_all_blog_posts():
+    """Get all blog posts (including drafts) for admin"""
+    posts = await db.blog_posts.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for post in posts:
+        if isinstance(post.get('created_at'), str):
+            post['created_at'] = datetime.fromisoformat(post['created_at'])
+        if isinstance(post.get('updated_at'), str):
+            post['updated_at'] = datetime.fromisoformat(post['updated_at'])
+    return posts
+
+@api_router.post("/admin/blog", response_model=BlogPost)
+async def create_blog_post(post_data: BlogPostCreate):
+    """Create a new blog post"""
+    post = BlogPost(**post_data.model_dump())
+    doc = post.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    await db.blog_posts.insert_one(doc)
+    return post
+
+@api_router.put("/admin/blog/{post_id}", response_model=BlogPost)
+async def update_blog_post(post_id: str, post_data: BlogPostUpdate):
+    """Update a blog post"""
+    existing = await db.blog_posts.find_one({"id": post_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    
+    update_dict = {k: v for k, v in post_data.model_dump().items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.blog_posts.update_one({"id": post_id}, {"$set": update_dict})
+    
+    updated_post = await db.blog_posts.find_one({"id": post_id}, {"_id": 0})
+    if isinstance(updated_post.get('created_at'), str):
+        updated_post['created_at'] = datetime.fromisoformat(updated_post['created_at'])
+    if isinstance(updated_post.get('updated_at'), str):
+        updated_post['updated_at'] = datetime.fromisoformat(updated_post['updated_at'])
+    return updated_post
+
+@api_router.delete("/admin/blog/{post_id}")
+async def delete_blog_post(post_id: str):
+    """Delete a blog post"""
+    result = await db.blog_posts.delete_one({"id": post_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Blog post not found")
+    return {"message": "Blog post deleted successfully"}
+
+# ============= HOME PAGE CONTENT ROUTES =============
+
+@api_router.get("/home-content", response_model=HomePageContent)
+async def get_home_content():
+    """Get home page content"""
+    content = await db.home_page_content.find_one({"id": "home_page_content"}, {"_id": 0})
+    if not content:
+        # Return default content
+        default_content = HomePageContent()
+        return default_content
+    if isinstance(content.get('updated_at'), str):
+        content['updated_at'] = datetime.fromisoformat(content['updated_at'])
+    return content
+
+@api_router.put("/admin/home-content", response_model=HomePageContent)
+async def update_home_content(content_data: HomePageContentUpdate):
+    """Update home page content"""
+    update_dict = {k: v for k, v in content_data.model_dump().items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.home_page_content.update_one(
+        {"id": "home_page_content"},
+        {"$set": update_dict},
+        upsert=True
+    )
+    
+    content = await db.home_page_content.find_one({"id": "home_page_content"}, {"_id": 0})
+    if isinstance(content.get('updated_at'), str):
+        content['updated_at'] = datetime.fromisoformat(content['updated_at'])
+    return content
 
 # Include router
 app.include_router(api_router)
