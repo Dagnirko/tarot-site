@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend API Testing Script
-Tests admin endpoints to verify they work WITHOUT authorization tokens
+Tests Services API, User Preferences API, and Blog API endpoints
 """
 
 import requests
@@ -9,9 +9,8 @@ import json
 import sys
 from datetime import datetime
 
-# Get backend URL from frontend env
-EXTERNAL_BACKEND_URL = "https://tarot.dagnir.ru/api"
-LOCAL_BACKEND_URL = "http://localhost:8001/api"
+# Backend URL from frontend/.env
+BACKEND_URL = "https://demobackend.emergentagent.com/api"
 
 def test_admin_endpoints_without_auth():
     """Test that admin endpoints work WITHOUT authorization headers"""
