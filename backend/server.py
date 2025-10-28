@@ -602,6 +602,90 @@ async def update_home_content(content_data: HomePageContentUpdate):
         content['updated_at'] = datetime.fromisoformat(content['updated_at'])
     return content
 
+# ============= SERVICES ROUTES =============
+
+@api_router.get("/services", response_model=List[Service])
+async def get_visible_services():
+    """Get all visible services for public view"""
+    services = await db.services.find({"visible": True}, {"_id": 0}).sort("order", 1).to_list(100)
+    for service in services:
+        if isinstance(service.get('created_at'), str):
+            service['created_at'] = datetime.fromisoformat(service['created_at'])
+    return services
+
+@api_router.get("/admin/services", response_model=List[Service])
+async def get_all_services():
+    """Get all services (including hidden) for admin"""
+    services = await db.services.find({}, {"_id": 0}).sort("order", 1).to_list(100)
+    for service in services:
+        if isinstance(service.get('created_at'), str):
+            service['created_at'] = datetime.fromisoformat(service['created_at'])
+    return services
+
+@api_router.post("/admin/services", response_model=Service)
+async def create_service(service_data: ServiceCreate):
+    """Create a new service"""
+    service = Service(**service_data.model_dump())
+    doc = service.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.services.insert_one(doc)
+    return service
+
+@api_router.put("/admin/services/{service_id}", response_model=Service)
+async def update_service(service_id: str, service_data: ServiceUpdate):
+    """Update a service"""
+    existing = await db.services.find_one({"id": service_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Service not found")
+    
+    update_dict = {k: v for k, v in service_data.model_dump().items() if v is not None}
+    
+    await db.services.update_one({"id": service_id}, {"$set": update_dict})
+    
+    updated_service = await db.services.find_one({"id": service_id}, {"_id": 0})
+    if isinstance(updated_service.get('created_at'), str):
+        updated_service['created_at'] = datetime.fromisoformat(updated_service['created_at'])
+    return updated_service
+
+@api_router.delete("/admin/services/{service_id}")
+async def delete_service(service_id: str):
+    """Delete a service"""
+    result = await db.services.delete_one({"id": service_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Service not found")
+    return {"message": "Service deleted successfully"}
+
+# ============= USER PREFERENCES ROUTES =============
+
+@api_router.get("/admin/preferences", response_model=UserPreferences)
+async def get_user_preferences(username: str = Depends(verify_token)):
+    """Get user preferences"""
+    preferences = await db.user_preferences.find_one({"user_id": username}, {"_id": 0})
+    if not preferences:
+        # Return default preferences
+        default_prefs = UserPreferences(user_id=username)
+        return default_prefs
+    if isinstance(preferences.get('updated_at'), str):
+        preferences['updated_at'] = datetime.fromisoformat(preferences['updated_at'])
+    return preferences
+
+@api_router.put("/admin/preferences", response_model=UserPreferences)
+async def update_user_preferences(prefs_data: UserPreferencesUpdate, username: str = Depends(verify_token)):
+    """Update user preferences"""
+    update_dict = {k: v for k, v in prefs_data.model_dump().items() if v is not None}
+    update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    await db.user_preferences.update_one(
+        {"user_id": username},
+        {"$set": update_dict},
+        upsert=True
+    )
+    
+    preferences = await db.user_preferences.find_one({"user_id": username}, {"_id": 0})
+    if isinstance(preferences.get('updated_at'), str):
+        preferences['updated_at'] = datetime.fromisoformat(preferences['updated_at'])
+    return preferences
+
 # Include router
 app.include_router(api_router)
 
