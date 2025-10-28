@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Протестировать backend API: проверка удаления авторизации из admin endpoints. Все admin endpoints теперь должны работать БЕЗ заголовков авторизации."
+user_problem_statement: "Исправление ошибки ReactQuill с React 19: заменить ReactQuill на Tiptap для совместимости с React 19. Ошибка возникала при добавлении текстового блока в PageEditor из-за удаленного API findDOMNode в React 19."
 
 backend:
   - task: "Remove authorization from admin pages endpoint"
