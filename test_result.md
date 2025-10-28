@@ -120,15 +120,18 @@ backend:
 frontend:
   - task: "Replace ReactQuill with Tiptap for React 19 compatibility"
     implemented: true
-    working: "NA"
+    working: false
     file: "frontend/src/admin/PageEditor.js, frontend/src/admin/BlogEditor.js, frontend/src/components/TiptapEditor.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Replaced ReactQuill with Tiptap 3.9.0 to fix findDOMNode error in React 19. Created TiptapEditor component with similar toolbar functionality. Updated PageEditor and BlogEditor to use new editor. Frontend compiled successfully. Ready for testing."
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE: The findDOMNode error still occurs when clicking 'Add Text Block' button. Error: 's.default.findDOMNode is not a function'. The TiptapEditor component is never rendered because the error prevents the text block from being added. Removed react-beautiful-dnd dependency but issue persists. The error occurs before TiptapEditor is instantiated, suggesting another component or library is using findDOMNode. Need to identify the root cause - likely a third-party package or component that hasn't been updated for React 19 compatibility."
 
 metadata:
   created_by: "testing_agent"
