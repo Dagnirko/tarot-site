@@ -9,8 +9,8 @@ import json
 import sys
 from datetime import datetime
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://demobackend.emergentagent.com/api"
+# Backend URL - using local for testing since external URL is not accessible
+BACKEND_URL = "http://localhost:8001/api"
 
 def create_test_user():
     """Create a test user and return auth token"""
