@@ -105,78 +105,6 @@
 user_problem_statement: "Исправление ошибки ReactQuill с React 19: заменить ReactQuill на Tiptap для совместимости с React 19. Ошибка возникала при добавлении текстового блока в PageEditor из-за удаленного API findDOMNode в React 19."
 
 backend:
-  - task: "Remove authorization from admin pages endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: GET /api/admin/pages works without authorization on local backend (returns 200). External URL still has auth layer due to infrastructure."
-        
-  - task: "Remove authorization from admin contacts endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: GET /api/admin/contacts works without authorization on local backend (returns 200). External URL still has auth layer due to infrastructure."
-        
-  - task: "Remove authorization from admin settings PUT endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: PUT /api/admin/settings works without authorization on local backend (successfully updated theme to 'winter'). External URL still has auth layer due to infrastructure."
-        
-  - task: "Public settings GET endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: GET /api/settings works without authorization on both local and external backends (returns theme and site settings)."
-        
-  - task: "Public pages endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: GET /api/pages works on both local and external backends (returns published pages array)."
-        
-  - task: "Public menu endpoint"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "✓ VERIFIED: GET /api/menu works on both local and external backends (returns menu items array)."
-
   - task: "MongoDB connection fix"
     implemented: true
     working: true
@@ -190,7 +118,17 @@ backend:
           comment: "✓ FIXED: Changed MONGO_URL from 'mongodb://mongodb:27017' to 'mongodb://localhost:27017' to resolve connection issues. Backend now connects successfully to local MongoDB."
 
 frontend:
-  # No frontend testing required for this task
+  - task: "Replace ReactQuill with Tiptap for React 19 compatibility"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/admin/PageEditor.js, frontend/src/admin/BlogEditor.js, frontend/src/components/TiptapEditor.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Replaced ReactQuill with Tiptap 3.9.0 to fix findDOMNode error in React 19. Created TiptapEditor component with similar toolbar functionality. Updated PageEditor and BlogEditor to use new editor. Frontend compiled successfully. Ready for testing."
 
 metadata:
   created_by: "testing_agent"
