@@ -138,16 +138,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Remove authorization from admin pages endpoint"
-    - "Remove authorization from admin contacts endpoint"
-    - "Remove authorization from admin settings PUT endpoint"
-    - "Public settings GET endpoint"
+    - "Replace ReactQuill with Tiptap for React 19 compatibility"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
-    - agent: "testing"
-      message: "TESTING COMPLETE: All admin endpoints successfully work WITHOUT authorization on local backend. The FastAPI code correctly implements no-auth admin endpoints. External URL (https://tarot.dagnir.ru) still requires auth due to reverse proxy/ingress configuration, but this is an infrastructure issue, not a code issue. MongoDB connection was fixed during testing."
-    - agent: "testing"
-      message: "INFRASTRUCTURE NOTE: External backend at https://tarot.dagnir.ru has additional authentication layer (likely Kubernetes ingress or reverse proxy) that adds 403 responses to admin endpoints. This is separate from the FastAPI application code which correctly allows no-auth access."
+    - agent: "main"
+      message: "IMPLEMENTATION COMPLETE: Replaced ReactQuill with Tiptap 3.9.0 to fix React 19 compatibility issue. The error 'react_dom_1.default.findDOMNode is not a function' was caused by ReactQuill using the deprecated findDOMNode API that was removed in React 19. Created custom TiptapEditor component with similar functionality (bold, italic, underline, strike, lists, links). Updated both PageEditor and BlogEditor. Frontend compiled successfully without errors. Need to test text block creation in admin panel."
