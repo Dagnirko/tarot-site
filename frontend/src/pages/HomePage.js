@@ -7,25 +7,31 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Moon, Sun, Mail, Send } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const HomePage = () => {
   const { theme, toggleTheme, settings } = useTheme();
   const [pages, setPages] = useState([]);
+  const [services, setServices] = useState([]);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    fetchPages();
+    fetchData();
   }, []);
 
-  const fetchPages = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/pages`);
-      setPages(response.data);
+      const [pagesRes, servicesRes] = await Promise.all([
+        axios.get(`${API}/pages`),
+        axios.get(`${API}/services`)
+      ]);
+      setPages(pagesRes.data);
+      setServices(servicesRes.data);
     } catch (error) {
-      console.error('Failed to fetch pages:', error);
+      console.error('Failed to fetch data:', error);
     }
   };
 
