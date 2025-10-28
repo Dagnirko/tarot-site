@@ -279,42 +279,65 @@ def main():
     print(f"Testing Backend API at: {BACKEND_URL}")
     print(f"Test started at: {datetime.now()}")
     
-    # Test admin endpoints without auth
-    admin_results = test_admin_endpoints_without_auth()
+    # Test backend connectivity first
+    if not test_backend_connectivity():
+        print("\n❌ BACKEND NOT ACCESSIBLE - Cannot proceed with tests")
+        return 1
     
-    # Test public endpoints  
-    public_results = test_public_endpoints()
+    # Create test user for auth-required endpoints
+    auth_token = create_test_user()
     
-    # Test that auth headers don't break anything
-    auth_test = test_with_auth_header_should_still_work()
+    # Test Services API
+    services_results = test_services_api()
+    
+    # Test User Preferences API (requires auth)
+    preferences_results = test_user_preferences_api(auth_token)
+    
+    # Test Blog API
+    blog_results = test_blog_api()
     
     # Summary
-    print("\n" + "="*60)
+    print("\n" + "="*80)
     print("SUMMARY")
-    print("="*60)
+    print("="*80)
     
-    print("\nAdmin Endpoints (should work WITHOUT auth):")
-    print(f"  GET /api/admin/pages: {'✓ PASS' if admin_results['admin_pages'] else '✗ FAIL'}")
-    print(f"  GET /api/admin/contacts: {'✓ PASS' if admin_results['admin_contacts'] else '✗ FAIL'}")
-    print(f"  GET /api/settings: {'✓ PASS' if admin_results['settings_get'] else '✗ FAIL'}")
-    print(f"  PUT /api/admin/settings: {'✓ PASS' if admin_results['admin_settings_put'] else '✗ FAIL'}")
+    print("\nServices API:")
+    print(f"  GET /api/services (public): {'✓ PASS' if services_results['get_public_services'] else '✗ FAIL'}")
+    print(f"  GET /api/admin/services: {'✓ PASS' if services_results['get_admin_services'] else '✗ FAIL'}")
+    print(f"  POST /api/admin/services: {'✓ PASS' if services_results['create_service'] else '✗ FAIL'}")
+    print(f"  PUT /api/admin/services/{{id}}: {'✓ PASS' if services_results['update_service'] else '✗ FAIL'}")
+    print(f"  DELETE /api/admin/services/{{id}}: {'✓ PASS' if services_results['delete_service'] else '✗ FAIL'}")
     
-    print("\nPublic Endpoints:")
-    print(f"  GET /api/pages: {'✓ PASS' if public_results['public_pages'] else '✗ FAIL'}")
-    print(f"  GET /api/menu: {'✓ PASS' if public_results['public_menu'] else '✗ FAIL'}")
-    print(f"  GET /api/settings: {'✓ PASS' if public_results['public_settings'] else '✗ FAIL'}")
+    print("\nUser Preferences API:")
+    print(f"  GET /api/admin/preferences: {'✓ PASS' if preferences_results['get_preferences'] else '✗ FAIL'}")
+    print(f"  PUT /api/admin/preferences: {'✓ PASS' if preferences_results['update_preferences'] else '✗ FAIL'}")
     
-    print(f"\nAuth Header Test: {'✓ PASS' if auth_test else '✗ FAIL'}")
+    print("\nBlog API:")
+    print(f"  GET /api/blog: {'✓ PASS' if blog_results['get_blog_posts'] else '✗ FAIL'}")
+    print(f"  GET /api/blog/{{id}}: {'✓ PASS' if blog_results['get_single_post'] else '✗ FAIL'}")
+    print(f"  POST /api/admin/blog (test): {'✓ PASS' if blog_results['create_test_post'] else '✗ FAIL'}")
     
     # Overall result
-    all_admin_pass = all(admin_results.values())
-    all_public_pass = all(public_results.values())
+    all_services_pass = all(services_results.values())
+    all_preferences_pass = all(preferences_results.values())
+    all_blog_pass = all(blog_results.values())
     
-    if all_admin_pass and all_public_pass and auth_test:
-        print("\n🎉 ALL TESTS PASSED - Authorization removed successfully!")
+    print(f"\nAuth Token Available: {'✓ YES' if auth_token else '✗ NO'}")
+    
+    if all_services_pass and all_preferences_pass and all_blog_pass:
+        print("\n🎉 ALL TESTS PASSED - New API endpoints working correctly!")
         return 0
     else:
         print("\n❌ SOME TESTS FAILED - Check results above")
+        
+        # Show which categories failed
+        if not all_services_pass:
+            print("   - Services API has issues")
+        if not all_preferences_pass:
+            print("   - User Preferences API has issues")
+        if not all_blog_pass:
+            print("   - Blog API has issues")
+        
         return 1
 
 if __name__ == "__main__":
