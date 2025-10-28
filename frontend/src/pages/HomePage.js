@@ -58,6 +58,9 @@ const HomePage = () => {
             {settings?.site_title || 'Таролог-Астролог'}
           </h1>
           <div className="flex items-center gap-6">
+            <Link to="/blog" className="hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
+              Блог
+            </Link>
             {pages.map((page) => (
               <Link key={page.id} to={`/page/${page.slug}`} className="hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>
                 {page.title}
