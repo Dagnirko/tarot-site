@@ -147,57 +147,114 @@ def test_services_api():
     
     return results
 
-def test_public_endpoints():
-    """Test public endpoints"""
-    print("\n=== Testing Public Endpoints ===")
+def test_user_preferences_api(auth_token):
+    """Test User Preferences API endpoints (requires auth)"""
+    print("\n=== Testing User Preferences API ===")
     
     results = {
-        "public_pages": False,
-        "public_menu": False,
-        "public_settings": False
+        "get_preferences": False,
+        "update_preferences": False
     }
     
-    # Test GET /api/pages
-    print("\n1. Testing GET /api/pages")
+    if not auth_token:
+        print("   ✗ No auth token available, skipping preferences tests")
+        return results
+    
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    
+    # Test GET /api/admin/preferences
+    print("\n1. Testing GET /api/admin/preferences")
     try:
-        response = requests.get(f"{BACKEND_URL}/pages", timeout=10)
+        response = requests.get(f"{BACKEND_URL}/admin/preferences", headers=headers, timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Got {len(data)} published pages")
-            results["public_pages"] = True
+            print(f"   Response: Current theme = {data.get('admin_theme', 'not found')}")
+            results["get_preferences"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
     
-    # Test GET /api/menu
-    print("\n2. Testing GET /api/menu")
+    # Test PUT /api/admin/preferences
+    print("\n2. Testing PUT /api/admin/preferences")
     try:
-        response = requests.get(f"{BACKEND_URL}/menu", timeout=10)
+        test_prefs = {"admin_theme": "dark"}
+        response = requests.put(f"{BACKEND_URL}/admin/preferences", json=test_prefs, headers=headers, timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Got {len(data)} menu items")
-            results["public_menu"] = True
+            print(f"   Response: Theme updated to {data.get('admin_theme')}")
+            results["update_preferences"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
     
-    # Test GET /api/settings (public access)
-    print("\n3. Testing GET /api/settings (public)")
+    return results
+
+def test_blog_api():
+    """Test Blog API endpoints"""
+    print("\n=== Testing Blog API ===")
+    
+    results = {
+        "get_blog_posts": False,
+        "get_single_post": False,
+        "create_test_post": False
+    }
+    
+    # First, create a test blog post via admin API (no auth required based on backend code)
+    print("\n1. Creating test blog post via admin API")
     try:
-        response = requests.get(f"{BACKEND_URL}/settings", timeout=10)
+        test_post = {
+            "title": "Тестовый пост блога",
+            "content": "<p>Это тестовый контент для проверки API блога.</p>",
+            "excerpt": "Краткое описание тестового поста",
+            "published": True,
+            "tags": ["тест", "api"]
+        }
+        response = requests.post(f"{BACKEND_URL}/admin/blog", json=test_post, timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Theme = {data.get('theme', 'not found')}")
-            results["public_settings"] = True
+            created_post_id = data.get("id")
+            print(f"   Response: Test post created with ID {created_post_id}")
+            results["create_test_post"] = True
+        else:
+            print(f"   Error: {response.text}")
+            created_post_id = None
+    except Exception as e:
+        print(f"   Exception: {str(e)}")
+        created_post_id = None
+    
+    # Test GET /api/blog
+    print("\n2. Testing GET /api/blog")
+    try:
+        response = requests.get(f"{BACKEND_URL}/blog", timeout=10)
+        print(f"   Status: {response.status_code}")
+        if response.status_code == 200:
+            data = response.json()
+            print(f"   Response: Got {len(data)} published blog posts")
+            results["get_blog_posts"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
+    
+    # Test GET /api/blog/{id}
+    if created_post_id:
+        print(f"\n3. Testing GET /api/blog/{created_post_id}")
+        try:
+            response = requests.get(f"{BACKEND_URL}/blog/{created_post_id}", timeout=10)
+            print(f"   Status: {response.status_code}")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   Response: Got post '{data.get('title')}'")
+                results["get_single_post"] = True
+            else:
+                print(f"   Error: {response.text}")
+        except Exception as e:
+            print(f"   Exception: {str(e)}")
     
     return results
 
