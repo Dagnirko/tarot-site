@@ -12,78 +12,138 @@ from datetime import datetime
 # Backend URL from frontend/.env
 BACKEND_URL = "https://demobackend.emergentagent.com/api"
 
-def test_admin_endpoints_without_auth():
-    """Test that admin endpoints work WITHOUT authorization headers"""
-    print("=== Testing Admin Endpoints WITHOUT Authorization ===")
+def create_test_user():
+    """Create a test user and return auth token"""
+    print("=== Creating Test User for Authentication ===")
     
-    results = {
-        "admin_pages": False,
-        "admin_contacts": False, 
-        "admin_settings_put": False,
-        "settings_get": False
+    test_user = {
+        "username": "testuser_tarot",
+        "email": "test@tarot.com", 
+        "password": "testpass123"
     }
     
-    # Test GET /api/admin/pages
-    print("\n1. Testing GET /api/admin/pages")
     try:
-        response = requests.get(f"{BACKEND_URL}/admin/pages", timeout=10)
+        # Try to register
+        response = requests.post(f"{BACKEND_URL}/auth/register", json=test_user, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get("access_token")
+            print(f"   ✓ User created successfully, token: {token[:20]}...")
+            return token
+        elif response.status_code == 400 and "already exists" in response.text:
+            # User exists, try to login
+            print("   User already exists, trying to login...")
+            login_data = {"username": test_user["username"], "password": test_user["password"]}
+            response = requests.post(f"{BACKEND_URL}/auth/login", json=login_data, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                token = data.get("access_token")
+                print(f"   ✓ Login successful, token: {token[:20]}...")
+                return token
+        
+        print(f"   ✗ Failed to create/login user: {response.status_code} - {response.text}")
+        return None
+    except Exception as e:
+        print(f"   Exception: {str(e)}")
+        return None
+
+def test_services_api():
+    """Test Services API endpoints"""
+    print("\n=== Testing Services API ===")
+    
+    results = {
+        "get_public_services": False,
+        "get_admin_services": False,
+        "create_service": False,
+        "update_service": False,
+        "delete_service": False
+    }
+    
+    created_service_id = None
+    
+    # Test GET /api/services (public)
+    print("\n1. Testing GET /api/services (public)")
+    try:
+        response = requests.get(f"{BACKEND_URL}/services", timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Got {len(data)} pages")
-            results["admin_pages"] = True
+            print(f"   Response: Got {len(data)} visible services")
+            results["get_public_services"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
     
-    # Test GET /api/admin/contacts  
-    print("\n2. Testing GET /api/admin/contacts")
+    # Test GET /api/admin/services
+    print("\n2. Testing GET /api/admin/services")
     try:
-        response = requests.get(f"{BACKEND_URL}/admin/contacts", timeout=10)
+        response = requests.get(f"{BACKEND_URL}/admin/services", timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Got {len(data)} contacts")
-            results["admin_contacts"] = True
+            print(f"   Response: Got {len(data)} total services")
+            results["get_admin_services"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
     
-    # Test GET /api/settings
-    print("\n3. Testing GET /api/settings")
+    # Test POST /api/admin/services
+    print("\n3. Testing POST /api/admin/services")
     try:
-        response = requests.get(f"{BACKEND_URL}/settings", timeout=10)
+        test_service = {
+            "title": "Таро Расклады",
+            "description": "Глубокий анализ жизненных ситуаций через карты Таро",
+            "icon": "Star",
+            "order": 1,
+            "visible": True
+        }
+        response = requests.post(f"{BACKEND_URL}/admin/services", json=test_service, timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
             data = response.json()
-            print(f"   Response: Theme = {data.get('theme', 'not found')}")
-            results["settings_get"] = True
+            created_service_id = data.get("id")
+            print(f"   Response: Service created with ID {created_service_id}")
+            results["create_service"] = True
         else:
             print(f"   Error: {response.text}")
     except Exception as e:
         print(f"   Exception: {str(e)}")
     
-    # Test PUT /api/admin/settings
-    print("\n4. Testing PUT /api/admin/settings")
-    try:
-        test_data = {"theme": "winter"}
-        response = requests.put(
-            f"{BACKEND_URL}/admin/settings", 
-            json=test_data,
-            headers={"Content-Type": "application/json"},
-            timeout=10
-        )
-        print(f"   Status: {response.status_code}")
-        if response.status_code == 200:
-            data = response.json()
-            print(f"   Response: Theme updated to {data.get('theme', 'not found')}")
-            results["admin_settings_put"] = True
-        else:
-            print(f"   Error: {response.text}")
-    except Exception as e:
-        print(f"   Exception: {str(e)}")
+    # Test PUT /api/admin/services/{id}
+    if created_service_id:
+        print(f"\n4. Testing PUT /api/admin/services/{created_service_id}")
+        try:
+            update_data = {
+                "title": "Таро Расклады - Обновлено",
+                "description": "Обновленное описание услуги"
+            }
+            response = requests.put(f"{BACKEND_URL}/admin/services/{created_service_id}", json=update_data, timeout=10)
+            print(f"   Status: {response.status_code}")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   Response: Service updated - {data.get('title')}")
+                results["update_service"] = True
+            else:
+                print(f"   Error: {response.text}")
+        except Exception as e:
+            print(f"   Exception: {str(e)}")
+    
+    # Test DELETE /api/admin/services/{id}
+    if created_service_id:
+        print(f"\n5. Testing DELETE /api/admin/services/{created_service_id}")
+        try:
+            response = requests.delete(f"{BACKEND_URL}/admin/services/{created_service_id}", timeout=10)
+            print(f"   Status: {response.status_code}")
+            if response.status_code == 200:
+                data = response.json()
+                print(f"   Response: {data.get('message', 'Service deleted')}")
+                results["delete_service"] = True
+            else:
+                print(f"   Error: {response.text}")
+        except Exception as e:
+            print(f"   Exception: {str(e)}")
     
     return results
 
