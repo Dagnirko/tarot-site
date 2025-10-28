@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -55,7 +54,6 @@ const SortableBlock = ({ id, block, onUpdate, onDelete, children }) => {
 
 const PageEditor = () => {
   const { pageId } = useParams();
-  const { token } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [pageData, setPageData] = useState({
@@ -80,9 +78,7 @@ const PageEditor = () => {
 
   const fetchPage = async () => {
     try {
-      const response = await axios.get(`${API}/admin/pages`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(`${API}/admin/pages`);
       const page = response.data.find(p => p.id === pageId);
       if (page) {
         setPageData(page);
@@ -152,14 +148,10 @@ const PageEditor = () => {
     setLoading(true);
     try {
       if (pageId) {
-        await axios.put(`${API}/admin/pages/${pageId}`, pageData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.put(`${API}/admin/pages/${pageId}`, pageData);
         toast.success('Страница обновлена');
       } else {
-        await axios.post(`${API}/admin/pages`, pageData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await axios.post(`${API}/admin/pages`, pageData);
         toast.success('Страница создана');
       }
       navigate('/admin/pages');

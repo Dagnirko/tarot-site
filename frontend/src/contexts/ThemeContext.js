@@ -30,13 +30,23 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'mystical' : 'light');
+    const themes = [
+      'light', 'mystical', 
+      'winter', 'spring', 'summer', 'autumn',
+      'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'
+    ];
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
   };
+
+  // Определяем, является ли тема темной
+  const isDarkTheme = ['mystical', 'mars', 'jupiter', 'neptune', 'pluto'].includes(theme);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, settings, refreshSettings: fetchSettings }}>
       <div className={`theme-${theme}`}>
-        {theme === 'mystical' && (
+        {isDarkTheme && theme === 'mystical' && (
           <div className="mystical-bg">
             <div className="stars"></div>
             <div className="moon"></div>

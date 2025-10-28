@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const AdminSettings = () => {
-  const { token } = useAuth();
   const { refreshSettings } = useTheme();
   const [loading, setLoading] = useState(false);
   const [settingsData, setSettingsData] = useState({
@@ -40,9 +38,7 @@ const AdminSettings = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await axios.put(`${API}/admin/settings`, settingsData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.put(`${API}/admin/settings`, settingsData);
       await refreshSettings();
       toast.success('Настройки сохранены');
     } catch (error) {
@@ -128,8 +124,25 @@ const AdminSettings = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="light">Светлая Тема</SelectItem>
-                  <SelectItem value="mystical">Мистическая Тема</SelectItem>
+                  <div className="px-2 py-1 text-xs font-semibold text-gray-500">Основные темы</div>
+                  <SelectItem value="light">☀️ Светлая</SelectItem>
+                  <SelectItem value="mystical">🌙 Мистическая</SelectItem>
+                  
+                  <div className="px-2 py-1 text-xs font-semibold text-gray-500 mt-2">Времена года</div>
+                  <SelectItem value="winter">❄️ Зима</SelectItem>
+                  <SelectItem value="spring">🌸 Весна</SelectItem>
+                  <SelectItem value="summer">☀️ Лето</SelectItem>
+                  <SelectItem value="autumn">🍂 Осень</SelectItem>
+                  
+                  <div className="px-2 py-1 text-xs font-semibold text-gray-500 mt-2">Планеты</div>
+                  <SelectItem value="mercury">☿ Меркурий</SelectItem>
+                  <SelectItem value="venus">♀ Венера</SelectItem>
+                  <SelectItem value="mars">♂ Марс</SelectItem>
+                  <SelectItem value="jupiter">♃ Юпитер</SelectItem>
+                  <SelectItem value="saturn">♄ Сатурн</SelectItem>
+                  <SelectItem value="uranus">♅ Уран</SelectItem>
+                  <SelectItem value="neptune">♆ Нептун</SelectItem>
+                  <SelectItem value="pluto">♇ Плутон</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>

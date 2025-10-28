@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +10,6 @@ import { ArrowLeft, Mail, Check } from 'lucide-react';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const AdminContacts = () => {
-  const { token } = useAuth();
   const [contacts, setContacts] = useState([]);
 
   useEffect(() => {
@@ -20,9 +18,7 @@ const AdminContacts = () => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(`${API}/admin/contacts`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(`${API}/admin/contacts`);
       setContacts(response.data);
     } catch (error) {
       toast.error('Ошибка загрузки сообщений');
@@ -31,9 +27,7 @@ const AdminContacts = () => {
 
   const markAsRead = async (contactId) => {
     try {
-      await axios.put(`${API}/admin/contacts/${contactId}/read`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.put(`${API}/admin/contacts/${contactId}/read`, {});
       fetchContacts();
       toast.success('Отмечено как прочитанное');
     } catch (error) {

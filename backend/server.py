@@ -305,7 +305,7 @@ async def create_contact(contact_data: ContactCreate):
 # ============= ADMIN ROUTES =============
 
 @api_router.get("/admin/pages", response_model=List[Page])
-async def get_all_pages(username: str = Depends(verify_token)):
+async def get_all_pages():
     pages = await db.pages.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     for page in pages:
         if isinstance(page.get('created_at'), str):
@@ -315,7 +315,7 @@ async def get_all_pages(username: str = Depends(verify_token)):
     return pages
 
 @api_router.post("/admin/pages", response_model=Page)
-async def create_page(page_data: PageCreate, username: str = Depends(verify_token)):
+async def create_page(page_data: PageCreate):
     # Check if slug exists
     existing = await db.pages.find_one({"slug": page_data.slug})
     if existing:
@@ -329,7 +329,7 @@ async def create_page(page_data: PageCreate, username: str = Depends(verify_toke
     return page
 
 @api_router.put("/admin/pages/{page_id}", response_model=Page)
-async def update_page(page_id: str, page_data: PageUpdate, username: str = Depends(verify_token)):
+async def update_page(page_id: str, page_data: PageUpdate):
     existing = await db.pages.find_one({"id": page_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Page not found")
@@ -347,14 +347,14 @@ async def update_page(page_id: str, page_data: PageUpdate, username: str = Depen
     return updated_page
 
 @api_router.delete("/admin/pages/{page_id}")
-async def delete_page(page_id: str, username: str = Depends(verify_token)):
+async def delete_page(page_id: str):
     result = await db.pages.delete_one({"id": page_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Page not found")
     return {"message": "Page deleted successfully"}
 
 @api_router.post("/admin/menu", response_model=MenuItem)
-async def create_menu_item(item_data: MenuItemCreate, username: str = Depends(verify_token)):
+async def create_menu_item(item_data: MenuItemCreate):
     item = MenuItem(**item_data.model_dump())
     doc = item.model_dump()
     doc['created_at'] = doc['created_at'].isoformat()
@@ -362,14 +362,14 @@ async def create_menu_item(item_data: MenuItemCreate, username: str = Depends(ve
     return item
 
 @api_router.delete("/admin/menu/{item_id}")
-async def delete_menu_item(item_id: str, username: str = Depends(verify_token)):
+async def delete_menu_item(item_id: str):
     result = await db.menu_items.delete_one({"id": item_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Menu item not found")
     return {"message": "Menu item deleted successfully"}
 
 @api_router.get("/admin/contacts", response_model=List[Contact])
-async def get_contacts(username: str = Depends(verify_token)):
+async def get_contacts():
     contacts = await db.contacts.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     for contact in contacts:
         if isinstance(contact.get('created_at'), str):
@@ -377,12 +377,12 @@ async def get_contacts(username: str = Depends(verify_token)):
     return contacts
 
 @api_router.put("/admin/contacts/{contact_id}/read")
-async def mark_contact_read(contact_id: str, username: str = Depends(verify_token)):
+async def mark_contact_read(contact_id: str):
     await db.contacts.update_one({"id": contact_id}, {"$set": {"read": True}})
     return {"message": "Contact marked as read"}
 
 @api_router.put("/admin/settings", response_model=Settings)
-async def update_settings(settings_data: SettingsUpdate, username: str = Depends(verify_token)):
+async def update_settings(settings_data: SettingsUpdate):
     update_dict = {k: v for k, v in settings_data.model_dump().items() if v is not None}
     update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
     
@@ -398,7 +398,7 @@ async def update_settings(settings_data: SettingsUpdate, username: str = Depends
     return settings
 
 @api_router.post("/admin/media", response_model=MediaItem)
-async def upload_media(file_data: Dict[str, Any], username: str = Depends(verify_token)):
+async def upload_media(file_data: Dict[str, Any]):
     """Upload media as base64"""
     media_item = MediaItem(
         filename=file_data.get("filename", "unknown"),
@@ -413,7 +413,7 @@ async def upload_media(file_data: Dict[str, Any], username: str = Depends(verify
     return media_item
 
 @api_router.get("/admin/media", response_model=List[MediaItem])
-async def get_media(username: str = Depends(verify_token)):
+async def get_media():
     media = await db.media.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     for item in media:
         if isinstance(item.get('created_at'), str):

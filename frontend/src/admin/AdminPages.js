@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -20,7 +19,6 @@ import {
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const AdminPages = () => {
-  const { token } = useAuth();
   const [pages, setPages] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -30,9 +28,7 @@ const AdminPages = () => {
 
   const fetchPages = async () => {
     try {
-      const response = await axios.get(`${API}/admin/pages`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await axios.get(`${API}/admin/pages`);
       setPages(response.data);
     } catch (error) {
       toast.error('Ошибка загрузки страниц');
@@ -41,9 +37,7 @@ const AdminPages = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/admin/pages/${deleteId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`${API}/admin/pages/${deleteId}`);
       toast.success('Страница удалена');
       fetchPages();
     } catch (error) {
