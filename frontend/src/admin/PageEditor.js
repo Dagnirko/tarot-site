@@ -12,8 +12,7 @@ import { ArrowLeft, Plus, Trash2, GripVertical, Save } from 'lucide-react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import TiptapEditor from '@/components/TiptapEditor';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
