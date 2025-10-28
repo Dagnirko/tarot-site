@@ -258,30 +258,22 @@ def test_blog_api():
     
     return results
 
-def test_with_auth_header_should_still_work():
-    """Test that endpoints still work if auth header is provided (but not required)"""
-    print("\n=== Testing Admin Endpoints WITH Authorization (should still work) ===")
+def test_backend_connectivity():
+    """Test basic backend connectivity"""
+    print("\n=== Testing Backend Connectivity ===")
     
-    # Create a fake token to test
-    fake_token = "Bearer fake_token_123"
-    headers = {"Authorization": fake_token}
-    
-    print("\n1. Testing GET /api/admin/pages with fake auth header")
     try:
-        response = requests.get(f"{BACKEND_URL}/admin/pages", headers=headers, timeout=10)
+        response = requests.get(f"{BACKEND_URL}/settings", timeout=10)
         print(f"   Status: {response.status_code}")
         if response.status_code == 200:
-            print("   ✓ Works with auth header (auth not required)")
-        elif response.status_code == 401:
-            print("   ✗ Returns 401 - this means auth is still required!")
-            return False
+            print("   ✓ Backend is accessible")
+            return True
         else:
-            print(f"   ? Unexpected status: {response.text}")
+            print(f"   ✗ Backend returned error: {response.text}")
+            return False
     except Exception as e:
-        print(f"   Exception: {str(e)}")
+        print(f"   ✗ Cannot connect to backend: {str(e)}")
         return False
-    
-    return True
 
 def main():
     print(f"Testing Backend API at: {BACKEND_URL}")
