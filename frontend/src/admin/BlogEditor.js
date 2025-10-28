@@ -77,18 +77,6 @@ const BlogEditor = () => {
     setPostData({ ...postData, tags: postData.tags.filter(tag => tag !== tagToRemove) });
   };
 
-  const modules = {
-    toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      ['link', 'image'],
-      [{ 'align': [] }],
-      ['clean']
-    ]
-  };
-
   return (
     <div className="min-h-screen px-6 py-12">
       <div className="container mx-auto max-w-4xl">
