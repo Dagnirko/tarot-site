@@ -4,6 +4,8 @@ import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/sonner';
 import HomePage from '@/pages/HomePage';
 import DynamicPage from '@/pages/DynamicPage';
+import BlogListPage from '@/pages/BlogListPage';
+import BlogPostPage from '@/pages/BlogPostPage';
 import AdminDashboard from '@/admin/AdminDashboard';
 import AdminPages from '@/admin/AdminPages';
 import PageEditor from '@/admin/PageEditor';
@@ -21,6 +23,8 @@ function App() {
         <Toaster position="top-right" />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/blog" element={<BlogListPage />} />
+          <Route path="/blog/:postId" element={<BlogPostPage />} />
           <Route path="/page/:slug" element={<DynamicPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/pages" element={<AdminPages />} />
