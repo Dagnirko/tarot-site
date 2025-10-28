@@ -291,3 +291,18 @@ agent_communication:
       8. Изменен URL на тестовый домен
       
       Готово к тестированию. Backend и frontend запущены успешно."
+    
+    - agent: "testing"
+      message: "✅ BACKEND TESTING COMPLETE: Все новые API endpoints протестированы и работают корректно на локальном сервере.
+
+      УСПЕШНО ПРОТЕСТИРОВАНЫ:
+      1. Services API - все CRUD операции работают (GET public/admin, POST, PUT, DELETE)
+      2. User Preferences API - получение и обновление настроек с авторизацией работает
+      3. Blog API - публичные endpoints работают, создание постов через админ API работает
+      4. Авторизация JWT - создание пользователя и получение токена работает
+
+      ⚠️ КРИТИЧЕСКАЯ ПРОБЛЕМА ОБНАРУЖЕНА:
+      Внешний URL https://demobackend.emergentagent.com/api возвращает 404 'Route not found'. 
+      Backend работает только локально на localhost:8001. Это означает, что frontend не сможет подключиться к backend в продакшене.
+      
+      ТРЕБУЕТСЯ ИСПРАВЛЕНИЕ: Настроить правильный роутинг для внешнего домена или обновить конфигурацию Kubernetes ingress."
