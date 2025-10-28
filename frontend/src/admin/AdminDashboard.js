@@ -2,11 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { FileText, Mail, Settings, LayoutDashboard, BookOpen, Home } from 'lucide-react';
+import { FileText, Mail, Settings, LayoutDashboard, BookOpen, Home, Sparkles } from 'lucide-react';
 
 const AdminDashboard = () => {
   const menuItems = [
     { title: 'Главная Страница', icon: Home, link: '/admin/home', desc: 'Редактирование главной страницы' },
+    { title: 'Услуги', icon: Sparkles, link: '/admin/services', desc: 'Управление услугами на главной странице' },
     { title: 'Блог', icon: BookOpen, link: '/admin/blog', desc: 'Управление постами блога' },
     { title: 'Страницы', icon: FileText, link: '/admin/pages', desc: 'Управление страницами сайта' },
     { title: 'Сообщения', icon: Mail, link: '/admin/contacts', desc: 'Просмотр сообщений' },
