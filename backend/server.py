@@ -183,6 +183,40 @@ class HomePageContentUpdate(BaseModel):
     hero_subtitle: Optional[str] = None
     hero_image: Optional[str] = None
     sections: Optional[List[Dict[str, Any]]] = None
+    blocks: Optional[List[BlockContent]] = None
+
+class Service(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    icon: str  # lucide-react icon name
+    order: int = 0
+    visible: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ServiceCreate(BaseModel):
+    title: str
+    description: str
+    icon: str
+    order: int = 0
+    visible: bool = True
+
+class ServiceUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    order: Optional[int] = None
+    visible: Optional[bool] = None
+
+class UserPreferences(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    user_id: str
+    admin_theme: str = "light"  # light or dark
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class UserPreferencesUpdate(BaseModel):
+    admin_theme: Optional[str] = None
 
 # ============= UTILITIES =============
 
