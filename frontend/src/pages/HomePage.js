@@ -103,20 +103,28 @@ const HomePage = () => {
           <h3 className="text-3xl sm:text-4xl font-bold text-center mb-12" style={{ color: 'var(--text-primary)' }}>
             Мои Услуги
           </h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              { title: 'Таро Расклады', desc: 'Глубокий анализ вашей ситуации через карты Таро' },
-              { title: 'Натальная Карта', desc: 'Индивидуальный астрологический анализ' },
-              { title: 'Прогнозы', desc: 'Персональные прогнозы на любой период' }
-            ].map((service, idx) => (
-              <div key={idx} className="glass-card fade-in-up" style={{ animationDelay: `${idx * 0.2}s` }}>
-                <h4 className="text-xl font-semibold mb-3" style={{ color: 'var(--text-accent)' }}>
-                  {service.title}
-                </h4>
-                <p style={{ color: 'var(--text-secondary)' }}>{service.desc}</p>
-              </div>
-            ))}
-          </div>
+          {services.length === 0 ? (
+            <div className="text-center" style={{ color: 'var(--text-secondary)' }}>
+              <p>Услуги скоро появятся</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {services.map((service, idx) => {
+                const IconComponent = LucideIcons[service.icon] || LucideIcons.Star;
+                return (
+                  <div key={service.id} className="glass-card fade-in-up" style={{ animationDelay: `${idx * 0.1}s` }}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <IconComponent size={32} style={{ color: 'var(--text-accent)' }} />
+                      <h4 className="text-xl font-semibold" style={{ color: 'var(--text-accent)' }}>
+                        {service.title}
+                      </h4>
+                    </div>
+                    <p style={{ color: 'var(--text-secondary)' }}>{service.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 
