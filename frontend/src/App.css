@@ -16,6 +16,200 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
 }
 
+/* ========== ADMIN PANEL STYLES (INDEPENDENT FROM SITE THEMES) ========== */
+
+/* Admin Light Theme */
+.admin-theme-light {
+  --admin-bg-primary: #ffffff;
+  --admin-bg-secondary: #f9fafb;
+  --admin-bg-tertiary: #f3f4f6;
+  --admin-text-primary: #111827;
+  --admin-text-secondary: #6b7280;
+  --admin-text-muted: #9ca3af;
+  --admin-border: #e5e7eb;
+  --admin-border-hover: #d1d5db;
+  --admin-card-bg: #ffffff;
+  --admin-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --admin-button-primary-bg: #3b82f6;
+  --admin-button-primary-hover: #2563eb;
+  --admin-button-primary-text: #ffffff;
+  --admin-input-bg: #ffffff;
+  --admin-input-border: #d1d5db;
+  --admin-input-text: #111827;
+  --admin-input-placeholder: #9ca3af;
+  --admin-select-bg: #ffffff;
+  --admin-select-text: #111827;
+  --admin-select-hover: #f3f4f6;
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-error: #ef4444;
+  --admin-info: #3b82f6;
+}
+
+/* Admin Dark Theme */
+.admin-theme-dark {
+  --admin-bg-primary: #111827;
+  --admin-bg-secondary: #1f2937;
+  --admin-bg-tertiary: #374151;
+  --admin-text-primary: #f9fafb;
+  --admin-text-secondary: #d1d5db;
+  --admin-text-muted: #9ca3af;
+  --admin-border: #374151;
+  --admin-border-hover: #4b5563;
+  --admin-card-bg: #1f2937;
+  --admin-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --admin-button-primary-bg: #3b82f6;
+  --admin-button-primary-hover: #2563eb;
+  --admin-button-primary-text: #ffffff;
+  --admin-input-bg: #374151;
+  --admin-input-border: #4b5563;
+  --admin-input-text: #f9fafb;
+  --admin-input-placeholder: #9ca3af;
+  --admin-select-bg: #374151;
+  --admin-select-text: #f9fafb;
+  --admin-select-hover: #4b5563;
+  --admin-success: #10b981;
+  --admin-warning: #f59e0b;
+  --admin-error: #ef4444;
+  --admin-info: #60a5fa;
+}
+
+/* Apply admin theme to body when on admin routes */
+body.admin-theme-light,
+body.admin-theme-dark {
+  background: var(--admin-bg-primary);
+  color: var(--admin-text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Admin-specific component styles */
+.admin-card {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  box-shadow: var(--admin-card-shadow);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.admin-input,
+.admin-textarea,
+.admin-select {
+  background: var(--admin-input-bg) !important;
+  border: 1px solid var(--admin-input-border) !important;
+  color: var(--admin-input-text) !important;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.admin-input:focus,
+.admin-textarea:focus,
+.admin-select:focus {
+  outline: none;
+  border-color: var(--admin-button-primary-bg) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.admin-input::placeholder,
+.admin-textarea::placeholder {
+  color: var(--admin-input-placeholder) !important;
+}
+
+.admin-button {
+  background: var(--admin-button-primary-bg);
+  color: var(--admin-button-primary-text);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-button:hover:not(:disabled) {
+  background: var(--admin-button-primary-hover);
+}
+
+.admin-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Admin select dropdown styles */
+.admin-select-content {
+  background: var(--admin-select-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 6px;
+  box-shadow: var(--admin-card-shadow);
+}
+
+.admin-select-item {
+  color: var(--admin-select-text) !important;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-select-item:hover,
+.admin-select-item[data-highlighted] {
+  background: var(--admin-select-hover) !important;
+}
+
+.admin-select-item[data-state="checked"] {
+  background: var(--admin-button-primary-bg) !important;
+  color: var(--admin-button-primary-text) !important;
+}
+
+/* Ensure readability for all admin text elements */
+.admin-label {
+  color: var(--admin-text-primary);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.admin-text-secondary {
+  color: var(--admin-text-secondary);
+}
+
+.admin-text-muted {
+  color: var(--admin-text-muted);
+}
+
+/* Admin header styles */
+.admin-header {
+  background: var(--admin-card-bg);
+  border-bottom: 1px solid var(--admin-border);
+  box-shadow: var(--admin-card-shadow);
+}
+
+/* Admin scrollbar */
+.admin-theme-light ::-webkit-scrollbar,
+.admin-theme-dark ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.admin-theme-light ::-webkit-scrollbar-track {
+  background: var(--admin-bg-secondary);
+}
+
+.admin-theme-light ::-webkit-scrollbar-thumb {
+  background: var(--admin-border-hover);
+  border-radius: 5px;
+}
+
+.admin-theme-dark ::-webkit-scrollbar-track {
+  background: var(--admin-bg-secondary);
+}
+
+.admin-theme-dark ::-webkit-scrollbar-thumb {
+  background: var(--admin-border-hover);
+  border-radius: 5px;
+}
+
+/* ========== END ADMIN PANEL STYLES ========== */
+
 /* Light Theme - Улучшенная читаемость */
 .theme-light {
   --bg-primary: #ffffff;

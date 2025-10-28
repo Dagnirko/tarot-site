@@ -59,9 +59,11 @@ class Token(BaseModel):
 
 class BlockContent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    type: str  # text, heading, image, quote, video, html
+    type: str  # text, heading, image, quote, video, html, services
     content: Dict[str, Any]
     order: int
+    layout: str = "full"  # full, left, right, center
+    width: str = "normal"  # normal, wide, narrow
 
 class Page(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -70,6 +72,7 @@ class Page(BaseModel):
     slug: str
     blocks: List[BlockContent] = []
     published: bool = False
+    is_homepage: bool = False  # Flag to set this page as homepage
     order: int = 0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -79,6 +82,7 @@ class PageCreate(BaseModel):
     slug: str
     blocks: List[BlockContent] = []
     published: bool = False
+    is_homepage: bool = False
     order: int = 0
 
 class PageUpdate(BaseModel):
@@ -86,6 +90,7 @@ class PageUpdate(BaseModel):
     slug: Optional[str] = None
     blocks: Optional[List[BlockContent]] = None
     published: Optional[bool] = None
+    is_homepage: Optional[bool] = None
     order: Optional[int] = None
 
 class MenuItem(BaseModel):
@@ -191,6 +196,7 @@ class Service(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     title: str
     description: str
+    full_description: Optional[str] = ""  # Full description for modal
     icon: str  # lucide-react icon name
     order: int = 0
     visible: bool = True
@@ -199,6 +205,7 @@ class Service(BaseModel):
 class ServiceCreate(BaseModel):
     title: str
     description: str
+    full_description: Optional[str] = ""
     icon: str
     order: int = 0
     visible: bool = True
@@ -206,6 +213,7 @@ class ServiceCreate(BaseModel):
 class ServiceUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    full_description: Optional[str] = None
     icon: Optional[str] = None
     order: Optional[int] = None
     visible: Optional[bool] = None
@@ -331,6 +339,17 @@ async def get_page_by_slug(slug: str):
         page['updated_at'] = datetime.fromisoformat(page['updated_at'])
     return page
 
+@api_router.get("/homepage-page")
+async def get_homepage_page():
+    """Get the page marked as homepage, if any"""
+    page = await db.pages.find_one({"is_homepage": True, "published": True}, {"_id": 0})
+    if page:
+        if isinstance(page.get('created_at'), str):
+            page['created_at'] = datetime.fromisoformat(page['created_at'])
+        if isinstance(page.get('updated_at'), str):
+            page['updated_at'] = datetime.fromisoformat(page['updated_at'])
+    return page  # Returns None if no homepage page set
+
 @api_router.get("/menu", response_model=List[MenuItem])
 async def get_menu_items():
     items = await db.menu_items.find({}, {"_id": 0}).sort("order", 1).to_list(50)
@@ -414,6 +433,13 @@ async def update_page(page_id: str, page_data: PageUpdate):
     
     update_dict = {k: v for k, v in page_data.model_dump().items() if v is not None}
     update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # If setting this page as homepage, unset all other pages
+    if update_dict.get("is_homepage") is True:
+        await db.pages.update_many(
+            {"id": {"$ne": page_id}},
+            {"$set": {"is_homepage": False}}
+        )
     
     await db.pages.update_one({"id": page_id}, {"$set": update_dict})
     

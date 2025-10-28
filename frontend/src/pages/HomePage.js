@@ -6,15 +6,68 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Moon, Sun, Mail, Send } from 'lucide-react';
+import { Moon, Sun, Mail, Send, X } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// Service Modal Component
+const ServiceModal = ({ service, onClose }) => {
+  if (!service) return null;
+
+  const IconComponent = LucideIcons[service.icon] || LucideIcons.Star;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0, 0, 0, 0.7)' }}
+      onClick={onClose}
+    >
+      <div 
+        className="glass-card max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+        data-testid="service-modal"
+      >
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-3">
+            <IconComponent size={40} style={{ color: 'var(--text-accent)' }} />
+            <h2 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              {service.title}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-opacity-20 hover:bg-gray-500 transition"
+            data-testid="close-service-modal"
+          >
+            <X size={24} style={{ color: 'var(--text-primary)' }} />
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+            {service.description}
+          </p>
+          
+          {service.full_description && (
+            <div 
+              className="pt-4 border-t" 
+              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+            >
+              <div dangerouslySetInnerHTML={{ __html: service.full_description.replace(/\n/g, '<br />') }} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const HomePage = () => {
   const { theme, toggleTheme, settings } = useTheme();
   const [pages, setPages] = useState([]);
   const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
   const [sending, setSending] = useState(false);
 
@@ -112,7 +165,13 @@ const HomePage = () => {
               {services.map((service, idx) => {
                 const IconComponent = LucideIcons[service.icon] || LucideIcons.Star;
                 return (
-                  <div key={service.id} className="glass-card fade-in-up" style={{ animationDelay: `${idx * 0.1}s` }}>
+                  <div 
+                    key={service.id} 
+                    className="glass-card fade-in-up cursor-pointer hover:scale-105 transition-transform" 
+                    style={{ animationDelay: `${idx * 0.1}s` }}
+                    onClick={() => setSelectedService(service)}
+                    data-testid={`service-card-${service.id}`}
+                  >
                     <div className="flex items-center gap-3 mb-3">
                       <IconComponent size={32} style={{ color: 'var(--text-accent)' }} />
                       <h4 className="text-xl font-semibold" style={{ color: 'var(--text-accent)' }}>
@@ -193,6 +252,11 @@ const HomePage = () => {
           <p>&copy; 2025 {settings?.site_title || 'Таролог-Астролог'}. Все права защищены.</p>
         </div>
       </footer>
+
+      {/* Service Modal */}
+      {selectedService && (
+        <ServiceModal service={selectedService} onClose={() => setSelectedService(null)} />
+      )}
     </div>
   );
 };

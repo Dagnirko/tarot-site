@@ -50,9 +50,15 @@ export const AdminThemeProvider = ({ children }) => {
   // Apply theme class to body for admin pages
   useEffect(() => {
     if (window.location.pathname.startsWith('/admin')) {
+      // Remove site theme classes
+      document.body.className = '';
+      
+      // Add admin theme class
       if (adminTheme === 'dark') {
+        document.body.classList.add('admin-theme-dark');
         document.documentElement.classList.add('dark');
       } else {
+        document.body.classList.add('admin-theme-light');
         document.documentElement.classList.remove('dark');
       }
     }

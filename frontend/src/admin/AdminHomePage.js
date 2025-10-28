@@ -28,19 +28,22 @@ const SortableSection = ({ id, section, onUpdate, onDelete, children }) => {
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="glass-card mb-4">
+    <div ref={setNodeRef} style={style} className="admin-card mb-4">
       <div className="flex items-start gap-2">
         <button {...attributes} {...listeners} className="p-2 cursor-move hover:bg-opacity-20 hover:bg-gray-500 rounded">
-          <GripVertical size={20} style={{ color: 'var(--text-secondary)' }} />
+          <GripVertical size={20} style={{ color: 'var(--admin-text-secondary)' }} />
         </button>
         <div className="flex-1">
           {children}
         </div>
         <button 
           onClick={onDelete} 
-          className="p-2 hover:bg-red-500 hover:bg-opacity-20 rounded"
+          className="p-2 rounded transition-colors"
+          style={{ color: 'var(--admin-error)' }}
+          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
         >
-          <Trash2 size={20} style={{ color: '#ef4444' }} />
+          <Trash2 size={20} />
         </button>
       </div>
     </div>
@@ -126,8 +129,8 @@ const AdminHomePage = () => {
   };
 
   return (
-    <div className="min-h-screen px-6 py-12">
-      <div className="container mx-auto max-w-4xl">
+    <div className="min-h-screen" style={{ background: 'var(--admin-bg-primary)', color: 'var(--admin-text-primary)' }}>
+      <div className="container mx-auto max-w-4xl px-6 py-12">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <Link to="/admin">
@@ -135,12 +138,12 @@ const AdminHomePage = () => {
                 <ArrowLeft size={18} />
               </Button>
             </Link>
-            <h1 className="text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            <h1 className="text-4xl font-bold" style={{ color: 'var(--admin-text-primary)' }}>
               <Home className="inline mr-2" size={36} />
               Редактирование Главной Страницы
             </h1>
           </div>
-          <Button onClick={handleSave} disabled={loading} className="btn-primary" data-testid="save-home-content">
+          <Button onClick={handleSave} disabled={loading} className="admin-button" data-testid="save-home-content">
             <Save className="mr-2" size={18} />
             {loading ? 'Сохранение...' : 'Сохранить'}
           </Button>
@@ -148,13 +151,13 @@ const AdminHomePage = () => {
 
         <div className="space-y-6">
           {/* Hero Section */}
-          <Card className="glass-card">
+          <Card className="admin-card">
             <CardHeader>
-              <CardTitle style={{ color: 'var(--text-primary)' }}>Hero Секция</CardTitle>
+              <CardTitle style={{ color: 'var(--admin-text-primary)' }}>Hero Секция</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block mb-2 font-medium" style={{ color: 'var(--text-primary)' }}>
+                <label className="admin-label">
                   Главный Заголовок
                 </label>
                 <Input
@@ -162,10 +165,11 @@ const AdminHomePage = () => {
                   value={content.hero_title}
                   onChange={(e) => setContent({ ...content, hero_title: e.target.value })}
                   placeholder="Добро пожаловать"
+                  className="admin-input"
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium" style={{ color: 'var(--text-primary)' }}>
+                <label className="admin-label">
                   Подзаголовок
                 </label>
                 <Textarea
@@ -174,10 +178,11 @@ const AdminHomePage = () => {
                   onChange={(e) => setContent({ ...content, hero_subtitle: e.target.value })}
                   placeholder="Краткое описание"
                   rows={3}
+                  className="admin-textarea"
                 />
               </div>
               <div>
-                <label className="block mb-2 font-medium" style={{ color: 'var(--text-primary)' }}>
+                <label className="admin-label">
                   URL Изображения Hero
                 </label>
                 <Input
@@ -185,6 +190,7 @@ const AdminHomePage = () => {
                   value={content.hero_image}
                   onChange={(e) => setContent({ ...content, hero_image: e.target.value })}
                   placeholder="https://example.com/hero-image.jpg"
+                  className="admin-input"
                 />
                 {content.hero_image && (
                   <img 
@@ -198,9 +204,9 @@ const AdminHomePage = () => {
           </Card>
 
           {/* Content Sections */}
-          <Card className="glass-card">
+          <Card className="admin-card">
             <CardHeader>
-              <CardTitle style={{ color: 'var(--text-primary)' }}>Контентные Секции</CardTitle>
+              <CardTitle style={{ color: 'var(--admin-text-primary)' }}>Контентные Секции</CardTitle>
             </CardHeader>
             <CardContent>
               <Button 
@@ -214,7 +220,7 @@ const AdminHomePage = () => {
               </Button>
 
               {content.sections.length === 0 ? (
-                <p style={{ color: 'var(--text-secondary)' }} className="text-center py-8">
+                <p style={{ color: 'var(--admin-text-secondary)' }} className="text-center py-8">
                   Нет секций. Добавьте первую!
                 </p>
               ) : (
@@ -234,6 +240,7 @@ const AdminHomePage = () => {
                             placeholder="Заголовок секции"
                             value={section.title}
                             onChange={(e) => updateSection(section.id, { title: e.target.value })}
+                            className="admin-input"
                           />
                           <Textarea
                             data-testid={`section-content-${section.id}`}
@@ -241,12 +248,14 @@ const AdminHomePage = () => {
                             value={section.content}
                             onChange={(e) => updateSection(section.id, { content: e.target.value })}
                             rows={4}
+                            className="admin-textarea"
                           />
                           <Input
                             data-testid={`section-image-${section.id}`}
                             placeholder="URL изображения (необязательно)"
                             value={section.image || ''}
                             onChange={(e) => updateSection(section.id, { image: e.target.value })}
+                            className="admin-input"
                           />
                           {section.image && (
                             <img 
