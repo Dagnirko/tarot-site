@@ -520,6 +520,48 @@ async def upload_media(file_data: Dict[str, Any]):
     await db.media.insert_one(doc)
     return media_item
 
+@api_router.post("/admin/upload-file")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload file to server disk"""
+    try:
+        # Generate unique filename
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{str(uuid_lib.uuid4())}{file_extension}"
+        file_path = ROOT_DIR / "uploads" / unique_filename
+        
+        # Save file
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Create media record
+        file_size = os.path.getsize(file_path)
+        media_item = MediaItem(
+            filename=file.filename,
+            url=f"/api/media/{unique_filename}",
+            type="image" if file.content_type and file.content_type.startswith("image/") else "file",
+            size=file_size
+        )
+        
+        doc = media_item.model_dump()
+        doc['created_at'] = doc['created_at'].isoformat()
+        await db.media.insert_one(doc)
+        
+        return {
+            "url": media_item.url,
+            "filename": file.filename,
+            "id": media_item.id
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
+
+@api_router.get("/media/{filename}")
+async def get_media_file(filename: str):
+    """Serve uploaded media files"""
+    file_path = ROOT_DIR / "uploads" / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(file_path)
+
 @api_router.get("/admin/media", response_model=List[MediaItem])
 async def get_media():
     media = await db.media.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
