@@ -298,7 +298,7 @@ const HomePage = () => {
               className="w-full max-h-96 object-cover rounded-lg mb-8 shadow-lg"
             />
           )}
-          <h2 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
             {homeContent?.hero_title || 'Откройте Тайны Вселенной'}
           </h2>
           <p className="text-base sm:text-lg mb-8" style={{ color: 'var(--text-secondary)' }}>
