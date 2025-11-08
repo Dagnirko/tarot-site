@@ -13,6 +13,7 @@ import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, us
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import TiptapEditor from '@/components/TiptapEditor';
+import ImageUploader from '@/components/ImageUploader';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -30,25 +31,29 @@ const SortableBlock = ({ id, block, onUpdate, onDelete, children }) => {
     transition,
   };
 
+  const columnSpanWidth = block.column_span === 1 ? '33.33%' : block.column_span === 2 ? '66.66%' : '100%';
+
   return (
-    <div ref={setNodeRef} style={style} className="admin-card mb-4">
-      <div className="flex items-start gap-2">
-        <button {...attributes} {...listeners} className="p-2 cursor-move hover:bg-opacity-20 hover:bg-gray-500 rounded" data-testid={`drag-handle-${id}`}>
-          <GripVertical size={20} style={{ color: 'var(--admin-text-secondary)' }} />
-        </button>
-        <div className="flex-1">
-          {children}
+    <div ref={setNodeRef} style={{ ...style, width: columnSpanWidth, padding: '0.5rem' }} className="inline-block align-top">
+      <div className="admin-card h-full">
+        <div className="flex items-start gap-2">
+          <button {...attributes} {...listeners} className="p-2 cursor-move hover:bg-opacity-20 hover:bg-gray-500 rounded" data-testid={`drag-handle-${id}`}>
+            <GripVertical size={20} style={{ color: 'var(--admin-text-secondary)' }} />
+          </button>
+          <div className="flex-1">
+            {children}
+          </div>
+          <button 
+            onClick={onDelete} 
+            className="p-2 rounded transition-colors"
+            style={{ color: 'var(--admin-error)' }}
+            data-testid={`delete-block-${id}`}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+          >
+            <Trash2 size={20} />
+          </button>
         </div>
-        <button 
-          onClick={onDelete} 
-          className="p-2 rounded transition-colors"
-          style={{ color: 'var(--admin-error)' }}
-          data-testid={`delete-block-${id}`}
-          onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-          onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-        >
-          <Trash2 size={20} />
-        </button>
       </div>
     </div>
   );
@@ -95,8 +100,7 @@ const PageEditor = () => {
       id: `block-${Date.now()}`,
       type,
       order: pageData.blocks.length,
-      layout: 'full',  // full, left, right, center
-      width: 'normal',  // normal, wide, narrow
+      column_span: 3,
       content: getDefaultContent(type)
     };
     setPageData({ ...pageData, blocks: [...pageData.blocks, newBlock] });
@@ -110,7 +114,15 @@ const PageEditor = () => {
       case 'quote': return { text: '', author: '' };
       case 'video': return { url: '' };
       case 'html': return { code: '' };
-      case 'services': return { display: 'all' }; // Display all services or selected ones
+      case 'services': return { display: 'all' };
+      case 'divider': return { style: 'solid' };
+      case 'button': return { text: 'Нажми меня', url: '#', style: 'primary' };
+      case 'cards': return { items: [{ title: 'Карточка 1', text: 'Описание', icon: 'Star' }] };
+      case 'accordion': return { items: [{ title: 'Вопрос 1', content: 'Ответ 1' }] };
+      case 'contact_info': return { phone: '', email: '', address: '', social: {} };
+      case 'tarot_card': return { card_name: 'Карта Дня', description: '' };
+      case 'astro_widget': return { widget_type: 'moon_phase' };
+      case 'calendar': return { title: 'Запись на консультацию' };
       default: return {};
     }
   };
@@ -172,19 +184,19 @@ const PageEditor = () => {
       updateBlock(block.id, { content: newContent });
     };
 
-    const updateLayout = (field, value) => {
-      updateBlock(block.id, { [field]: value });
+    const updateColumnSpan = (span) => {
+      updateBlock(block.id, { column_span: span });
     };
 
     return (
       <div className="space-y-3">
-        {/* Layout Controls */}
+        {/* Column Span Control */}
         <div className="flex gap-4 p-3 rounded" style={{ background: 'var(--admin-bg-tertiary)' }}>
           <div className="flex-1">
-            <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--admin-text-secondary)' }}>Позиция</label>
+            <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--admin-text-secondary)' }}>Ширина столбцов</label>
             <select
-              value={block.layout || 'full'}
-              onChange={(e) => updateLayout('layout', e.target.value)}
+              value={block.column_span || 3}
+              onChange={(e) => updateColumnSpan(parseInt(e.target.value))}
               className="admin-select w-full text-sm"
               style={{ 
                 background: 'var(--admin-input-bg)', 
@@ -193,28 +205,9 @@ const PageEditor = () => {
                 padding: '0.25rem 0.5rem'
               }}
             >
-              <option value="full">Во всю ширину</option>
-              <option value="left">Слева</option>
-              <option value="right">Справа</option>
-              <option value="center">По центру</option>
-            </select>
-          </div>
-          <div className="flex-1">
-            <label className="text-xs font-medium mb-1 block" style={{ color: 'var(--admin-text-secondary)' }}>Ширина</label>
-            <select
-              value={block.width || 'normal'}
-              onChange={(e) => updateLayout('width', e.target.value)}
-              className="admin-select w-full text-sm"
-              style={{ 
-                background: 'var(--admin-input-bg)', 
-                color: 'var(--admin-input-text)',
-                border: `1px solid var(--admin-input-border)`,
-                padding: '0.25rem 0.5rem'
-              }}
-            >
-              <option value="narrow">Узкая (50%)</option>
-              <option value="normal">Обычная (75%)</option>
-              <option value="wide">Широкая (100%)</option>
+              <option value="1">1 столбец (33%)</option>
+              <option value="2">2 столбца (66%)</option>
+              <option value="3">3 столбца (100%)</option>
             </select>
           </div>
         </div>
@@ -244,11 +237,9 @@ const PageEditor = () => {
             case 'image':
               return (
                 <div className="space-y-2" data-testid={`image-editor-${block.id}`}>
-                  <Input
-                    placeholder="URL изображения"
-                    value={block.content.url || ''}
-                    onChange={(e) => updateContent({ ...block.content, url: e.target.value })}
-                    className="admin-input"
+                  <ImageUploader
+                    currentImageUrl={block.content.url}
+                    onImageUploaded={(url) => updateContent({ ...block.content, url })}
                   />
                   <Input
                     placeholder="Alt текст"
@@ -262,9 +253,6 @@ const PageEditor = () => {
                     onChange={(e) => updateContent({ ...block.content, caption: e.target.value })}
                     className="admin-input"
                   />
-                  {block.content.url && (
-                    <img src={block.content.url} alt="preview" className="w-full max-h-64 object-cover rounded" />
-                  )}
                 </div>
               );
             case 'quote':
@@ -317,15 +305,161 @@ const PageEditor = () => {
               return (
                 <div className="space-y-2" data-testid={`services-editor-${block.id}`}>
                   <p style={{ color: 'var(--admin-text-secondary)' }}>
-                    Блок "Услуги" будет отображать все активные услуги с сайта в формате карточек.
-                    Пользователи смогут кликнуть на услугу, чтобы увидеть полное описание.
+                    Блок "Услуги" будет отображать все активные услуги с сайта.
                   </p>
                   <div className="p-4 rounded" style={{ background: 'var(--admin-bg-secondary)', border: '2px dashed var(--admin-border)' }}>
                     <p style={{ color: 'var(--admin-button-primary-bg)', fontWeight: '600' }}>📋 Предпросмотр: Блок Услуги</p>
-                    <p style={{ color: 'var(--admin-text-secondary)', fontSize: '0.875rem' }}>
-                      Здесь будут отображаться все активные услуги из раздела "Управление Услугами"
-                    </p>
                   </div>
+                </div>
+              );
+            case 'divider':
+              return (
+                <div className="space-y-2" data-testid={`divider-editor-${block.id}`}>
+                  <label className="text-sm" style={{ color: 'var(--admin-text-secondary)' }}>Стиль разделителя</label>
+                  <select
+                    value={block.content.style || 'solid'}
+                    onChange={(e) => updateContent({ style: e.target.value })}
+                    className="admin-select w-full"
+                  >
+                    <option value="solid">Сплошная линия</option>
+                    <option value="dashed">Пунктирная линия</option>
+                    <option value="dotted">Точечная линия</option>
+                  </select>
+                  <hr style={{ borderStyle: block.content.style || 'solid' }} className="my-2" />
+                </div>
+              );
+            case 'button':
+              return (
+                <div className="space-y-2" data-testid={`button-editor-${block.id}`}>
+                  <Input
+                    placeholder="Текст кнопки"
+                    value={block.content.text || ''}
+                    onChange={(e) => updateContent({ ...block.content, text: e.target.value })}
+                    className="admin-input"
+                  />
+                  <Input
+                    placeholder="URL ссылки"
+                    value={block.content.url || ''}
+                    onChange={(e) => updateContent({ ...block.content, url: e.target.value })}
+                    className="admin-input"
+                  />
+                  <select
+                    value={block.content.style || 'primary'}
+                    onChange={(e) => updateContent({ ...block.content, style: e.target.value })}
+                    className="admin-select w-full"
+                  >
+                    <option value="primary">Основная</option>
+                    <option value="secondary">Вторичная</option>
+                    <option value="outline">Контурная</option>
+                  </select>
+                </div>
+              );
+            case 'cards':
+              return (
+                <div className="space-y-3" data-testid={`cards-editor-${block.id}`}>
+                  <p style={{ color: 'var(--admin-text-secondary)' }}>Карточки (JSON формат)</p>
+                  <Textarea
+                    placeholder={`[{"title": "Заголовок", "text": "Текст", "icon": "Star"}]`}
+                    value={JSON.stringify(block.content.items || [], null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const items = JSON.parse(e.target.value);
+                        updateContent({ items });
+                      } catch {}
+                    }}
+                    rows={6}
+                    className="font-mono text-sm admin-textarea"
+                  />
+                </div>
+              );
+            case 'accordion':
+              return (
+                <div className="space-y-3" data-testid={`accordion-editor-${block.id}`}>
+                  <p style={{ color: 'var(--admin-text-secondary)' }}>Аккордеон (JSON формат)</p>
+                  <Textarea
+                    placeholder={`[{"title": "Вопрос", "content": "Ответ"}]`}
+                    value={JSON.stringify(block.content.items || [], null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const items = JSON.parse(e.target.value);
+                        updateContent({ items });
+                      } catch {}
+                    }}
+                    rows={6}
+                    className="font-mono text-sm admin-textarea"
+                  />
+                </div>
+              );
+            case 'contact_info':
+              return (
+                <div className="space-y-2" data-testid={`contact-info-editor-${block.id}`}>
+                  <Input
+                    placeholder="Телефон"
+                    value={block.content.phone || ''}
+                    onChange={(e) => updateContent({ ...block.content, phone: e.target.value })}
+                    className="admin-input"
+                  />
+                  <Input
+                    placeholder="Email"
+                    value={block.content.email || ''}
+                    onChange={(e) => updateContent({ ...block.content, email: e.target.value })}
+                    className="admin-input"
+                  />
+                  <Input
+                    placeholder="Адрес"
+                    value={block.content.address || ''}
+                    onChange={(e) => updateContent({ ...block.content, address: e.target.value })}
+                    className="admin-input"
+                  />
+                </div>
+              );
+            case 'tarot_card':
+              return (
+                <div className="space-y-2" data-testid={`tarot-card-editor-${block.id}`}>
+                  <Input
+                    placeholder="Название карты"
+                    value={block.content.card_name || ''}
+                    onChange={(e) => updateContent({ ...block.content, card_name: e.target.value })}
+                    className="admin-input"
+                  />
+                  <Textarea
+                    placeholder="Описание карты"
+                    value={block.content.description || ''}
+                    onChange={(e) => updateContent({ ...block.content, description: e.target.value })}
+                    rows={3}
+                    className="admin-textarea"
+                  />
+                </div>
+              );
+            case 'astro_widget':
+              return (
+                <div className="space-y-2" data-testid={`astro-widget-editor-${block.id}`}>
+                  <select
+                    value={block.content.widget_type || 'moon_phase'}
+                    onChange={(e) => updateContent({ widget_type: e.target.value })}
+                    className="admin-select w-full"
+                  >
+                    <option value="moon_phase">Фаза Луны</option>
+                    <option value="zodiac_signs">Знаки Зодиака</option>
+                    <option value="planetary_hours">Планетарные Часы</option>
+                  </select>
+                  <p style={{ color: 'var(--admin-text-secondary)', fontSize: '0.875rem' }}>
+                    Виджет будет отображать выбранную астрологическую информацию
+                  </p>
+                </div>
+              );
+            case 'calendar':
+              return (
+                <div className="space-y-2" data-testid={`calendar-editor-${block.id}`}>
+                  <Input
+                    placeholder="Заголовок календаря"
+                    value={block.content.title || ''}
+                    onChange={(e) => updateContent({ title: e.target.value })}
+                    className="admin-input"
+                  />
+                  <p style={{ color: 'var(--admin-text-secondary)', fontSize: '0.875rem' }}>
+                    Отобразит простой календарь для записи на консультацию
+                  </p>
                 </div>
               );
             default:
@@ -338,7 +472,7 @@ const PageEditor = () => {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--admin-bg-primary)', color: 'var(--admin-text-primary)' }}>
-      <div className="container mx-auto max-w-4xl px-6 py-12">
+      <div className="container mx-auto max-w-7xl px-6 py-12">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <Link to="/admin/pages">
@@ -404,13 +538,21 @@ const PageEditor = () => {
             <label className="admin-label mb-3">Добавить блок:</label>
             <div className="flex flex-wrap gap-2">
               {[
-                { type: 'heading', label: 'Заголовок' },
-                { type: 'text', label: 'Текст' },
-                { type: 'image', label: 'Изображение' },
-                { type: 'services', label: 'Услуги' },
-                { type: 'quote', label: 'Цитата' },
-                { type: 'video', label: 'Видео' },
-                { type: 'html', label: 'HTML/Виджет' },
+                { type: 'heading', label: '📝 Заголовок', category: 'basic' },
+                { type: 'text', label: '📄 Текст', category: 'basic' },
+                { type: 'image', label: '🖼️ Изображение', category: 'basic' },
+                { type: 'quote', label: '💬 Цитата', category: 'basic' },
+                { type: 'video', label: '🎥 Видео', category: 'basic' },
+                { type: 'button', label: '🔘 Кнопка', category: 'basic' },
+                { type: 'divider', label: '➖ Разделитель', category: 'basic' },
+                { type: 'services', label: '💼 Услуги', category: 'content' },
+                { type: 'cards', label: '🃏 Карточки', category: 'content' },
+                { type: 'accordion', label: '📋 Аккордеон', category: 'content' },
+                { type: 'contact_info', label: '📞 Контакты', category: 'content' },
+                { type: 'tarot_card', label: '🔮 Таро', category: 'special' },
+                { type: 'astro_widget', label: '⭐ Астро', category: 'special' },
+                { type: 'calendar', label: '📅 Календарь', category: 'special' },
+                { type: 'html', label: '💻 HTML', category: 'advanced' },
               ].map(({ type, label }) => (
                 <Button
                   key={type}
@@ -419,7 +561,6 @@ const PageEditor = () => {
                   size="sm"
                   data-testid={`add-block-${type}`}
                 >
-                  <Plus className="mr-1" size={16} />
                   {label}
                 </Button>
               ))}
@@ -427,7 +568,7 @@ const PageEditor = () => {
           </CardContent>
         </Card>
 
-        {/* Blocks Editor */}
+        {/* Blocks Editor with 3-column layout preview */}
         <div className="block-editor">
           {pageData.blocks.length === 0 ? (
             <Card className="admin-card">
@@ -438,26 +579,35 @@ const PageEditor = () => {
               </CardContent>
             </Card>
           ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={pageData.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                {pageData.blocks.map((block) => (
-                  <SortableBlock
-                    key={block.id}
-                    id={block.id}
-                    block={block}
-                    onUpdate={updateBlock}
-                    onDelete={() => deleteBlock(block.id)}
-                  >
-                    <div className="mb-2">
-                      <span className="text-sm font-medium px-2 py-1 rounded" style={{ background: 'var(--admin-button-primary-bg)', color: 'var(--admin-button-primary-text)' }}>
-                        {block.type}
-                      </span>
-                    </div>
-                    {renderBlockEditor(block)}
-                  </SortableBlock>
-                ))}
-              </SortableContext>
-            </DndContext>
+            <div>
+              <div className="mb-4 p-3 rounded" style={{ background: 'var(--admin-bg-secondary)' }}>
+                <p className="text-sm" style={{ color: 'var(--admin-text-secondary)' }}>
+                  💡 <strong>Система 3 столбцов:</strong> Каждый блок может занимать 1, 2 или 3 столбца. Блоки автоматически выстраиваются в сетку.
+                </p>
+              </div>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={pageData.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
+                  <div className="flex flex-wrap" style={{ margin: '-0.5rem' }}>
+                    {pageData.blocks.map((block) => (
+                      <SortableBlock
+                        key={block.id}
+                        id={block.id}
+                        block={block}
+                        onUpdate={updateBlock}
+                        onDelete={() => deleteBlock(block.id)}
+                      >
+                        <div className="mb-2">
+                          <span className="text-sm font-medium px-2 py-1 rounded" style={{ background: 'var(--admin-button-primary-bg)', color: 'var(--admin-button-primary-text)' }}>
+                            {block.type}
+                          </span>
+                        </div>
+                        {renderBlockEditor(block)}
+                      </SortableBlock>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            </div>
           )}
         </div>
       </div>
