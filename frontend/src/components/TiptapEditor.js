@@ -16,6 +16,7 @@ const MenuBar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleBold().run()}
         className={editor.isActive('bold') ? 'is-active' : ''}
         type="button"
+        title="Жирный"
       >
         <strong>B</strong>
       </button>
@@ -23,6 +24,7 @@ const MenuBar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={editor.isActive('italic') ? 'is-active' : ''}
         type="button"
+        title="Курсив"
       >
         <em>I</em>
       </button>
@@ -30,6 +32,7 @@ const MenuBar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         className={editor.isActive('underline') ? 'is-active' : ''}
         type="button"
+        title="Подчеркнутый"
       >
         <u>U</u>
       </button>
@@ -37,14 +40,41 @@ const MenuBar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleStrike().run()}
         className={editor.isActive('strike') ? 'is-active' : ''}
         type="button"
+        title="Зачеркнутый"
       >
         <s>S</s>
+      </button>
+      <span className="separator"></span>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
+        type="button"
+        title="Заголовок 2"
+      >
+        H2
+      </button>
+      <button
+        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''}
+        type="button"
+        title="Заголовок 3"
+      >
+        H3
+      </button>
+      <button
+        onClick={() => editor.chain().focus().setParagraph().run()}
+        className={editor.isActive('paragraph') ? 'is-active' : ''}
+        type="button"
+        title="Параграф"
+      >
+        P
       </button>
       <span className="separator"></span>
       <button
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         className={editor.isActive('bulletList') ? 'is-active' : ''}
         type="button"
+        title="Маркированный список"
       >
         • List
       </button>
@@ -52,19 +82,30 @@ const MenuBar = ({ editor }) => {
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         className={editor.isActive('orderedList') ? 'is-active' : ''}
         type="button"
+        title="Нумерованный список"
       >
         1. List
       </button>
       <span className="separator"></span>
       <button
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        className={editor.isActive('blockquote') ? 'is-active' : ''}
+        type="button"
+        title="Цитата"
+      >
+        Quote
+      </button>
+      <span className="separator"></span>
+      <button
         onClick={() => {
-          const url = window.prompt('Enter URL:');
+          const url = window.prompt('Введите URL:');
           if (url) {
             editor.chain().focus().setLink({ href: url }).run();
           }
         }}
         className={editor.isActive('link') ? 'is-active' : ''}
         type="button"
+        title="Добавить ссылку"
       >
         Link
       </button>
@@ -72,10 +113,28 @@ const MenuBar = ({ editor }) => {
         <button
           onClick={() => editor.chain().focus().unsetLink().run()}
           type="button"
+          title="Удалить ссылку"
         >
           Unlink
         </button>
       )}
+      <span className="separator"></span>
+      <button
+        onClick={() => editor.chain().focus().undo().run()}
+        disabled={!editor.can().undo()}
+        type="button"
+        title="Отменить"
+      >
+        ↶
+      </button>
+      <button
+        onClick={() => editor.chain().focus().redo().run()}
+        disabled={!editor.can().redo()}
+        type="button"
+        title="Повторить"
+      >
+        ↷
+      </button>
     </div>
   );
 };
