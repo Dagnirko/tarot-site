@@ -113,39 +113,23 @@ const HomePage = () => {
 
   // Render block from homepage page (if is_homepage is set)
   const renderPageBlock = (block) => {
-    const getBlockWrapperStyle = () => {
-      const styles = { marginBottom: '2rem' };
-      
-      switch (block.width) {
-        case 'narrow': styles.maxWidth = '50%'; break;
-        case 'normal': styles.maxWidth = '75%'; break;
-        case 'wide': styles.maxWidth = '100%'; break;
-        default: styles.maxWidth = '75%';
-      }
-      
-      switch (block.layout) {
-        case 'left': styles.marginLeft = '0'; styles.marginRight = 'auto'; break;
-        case 'right': styles.marginLeft = 'auto'; styles.marginRight = '0'; break;
-        case 'center': styles.marginLeft = 'auto'; styles.marginRight = 'auto'; break;
-        case 'full': styles.maxWidth = '100%'; break;
-      }
-      
-      return styles;
+    const getBlockColumnClass = () => {
+      const columnSpan = block.column_span || 3;
+      return columnSpan === 1 ? 'col-span-1' : columnSpan === 2 ? 'col-span-2' : 'col-span-3';
     };
 
-    const blockStyle = getBlockWrapperStyle();
     let content = null;
 
     switch (block.type) {
       case 'heading':
-        content = <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>{block.content.text}</h2>;
+        content = <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }} data-testid="block-heading">{block.content.text}</h2>;
         break;
       case 'text':
-        content = <div className="prose prose-lg mb-6" style={{ color: 'var(--text-primary)' }} dangerouslySetInnerHTML={{ __html: block.content.html }} />;
+        content = <div className="prose prose-lg mb-6" style={{ color: 'var(--text-primary)' }} dangerouslySetInnerHTML={{ __html: block.content.html }} data-testid="block-text" />;
         break;
       case 'image':
         content = (
-          <div className="mb-6">
+          <div className="mb-6" data-testid="block-image">
             <img src={block.content.url} alt={block.content.alt || ''} className="w-full rounded-lg shadow-lg" />
             {block.content.caption && <p className="text-center mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>{block.content.caption}</p>}
           </div>
@@ -153,7 +137,7 @@ const HomePage = () => {
         break;
       case 'quote':
         content = (
-          <blockquote className="border-l-4 pl-4 italic mb-6" style={{ borderColor: 'var(--text-accent)', color: 'var(--text-secondary)' }}>
+          <blockquote className="border-l-4 pl-4 italic mb-6" style={{ borderColor: 'var(--text-accent)', color: 'var(--text-secondary)' }} data-testid="block-quote">
             <p className="text-lg">{block.content.text}</p>
             {block.content.author && <footer className="mt-2" style={{ color: 'var(--text-accent)' }}>— {block.content.author}</footer>}
           </blockquote>
@@ -161,17 +145,17 @@ const HomePage = () => {
         break;
       case 'video':
         content = (
-          <div className="mb-6 aspect-video">
+          <div className="mb-6 aspect-video" data-testid="block-video">
             <iframe src={block.content.url} className="w-full h-full rounded-lg" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
           </div>
         );
         break;
       case 'html':
-        content = <div className="mb-6" dangerouslySetInnerHTML={{ __html: block.content.code }} />;
+        content = <div className="mb-6" dangerouslySetInnerHTML={{ __html: block.content.code }} data-testid="block-html" />;
         break;
       case 'services':
         content = (
-          <div className="mb-12">
+          <div className="mb-12" data-testid="block-services">
             <h3 className="text-3xl font-bold text-center mb-8" style={{ color: 'var(--text-primary)' }}>Наши Услуги</h3>
             {services.length === 0 ? (
               <div className="text-center" style={{ color: 'var(--text-secondary)' }}><p>Услуги скоро появятся</p></div>
@@ -194,11 +178,218 @@ const HomePage = () => {
           </div>
         );
         break;
+
+      // New block types
+      case 'divider':
+        content = (
+          <div className="my-8" data-testid="block-divider">
+            <hr 
+              style={{ 
+                borderColor: block.content.color || 'var(--border-color)',
+                borderWidth: `${block.content.thickness || 1}px`,
+                borderStyle: block.content.style || 'solid'
+              }} 
+            />
+          </div>
+        );
+        break;
+
+      case 'button':
+        content = (
+          <div className={`my-6 text-${block.content.align || 'center'}`} data-testid="block-button">
+            <a
+              href={block.content.link || '#'}
+              target={block.content.newTab ? '_blank' : '_self'}
+              rel={block.content.newTab ? 'noopener noreferrer' : ''}
+              className="inline-block px-8 py-3 rounded-lg font-semibold transition-all hover:scale-105"
+              style={{
+                background: block.content.bgColor || 'var(--button-bg)',
+                color: block.content.textColor || 'var(--button-text)'
+              }}
+            >
+              {block.content.text || 'Кнопка'}
+            </a>
+          </div>
+        );
+        break;
+
+      case 'cards':
+        content = (
+          <div className="my-8" data-testid="block-cards">
+            {block.content.title && (
+              <h3 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--text-primary)' }}>
+                {block.content.title}
+              </h3>
+            )}
+            <div className={`grid gap-6 ${block.content.columns === '2' ? 'md:grid-cols-2' : block.content.columns === '4' ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+              {(block.content.cards || []).map((card, idx) => (
+                <div key={idx} className="glass-card">
+                  {card.icon && (
+                    <div className="text-4xl mb-3">{card.icon}</div>
+                  )}
+                  {card.title && (
+                    <h4 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-accent)' }}>
+                      {card.title}
+                    </h4>
+                  )}
+                  {card.description && (
+                    <p style={{ color: 'var(--text-secondary)' }}>{card.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+        break;
+
+      case 'accordion':
+        content = (
+          <div className="my-8 space-y-3" data-testid="block-accordion">
+            {block.content.title && (
+              <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+                {block.content.title}
+              </h3>
+            )}
+            {(block.content.items || []).map((item, idx) => (
+              <details key={idx} className="glass-card">
+                <summary className="cursor-pointer font-semibold p-4" style={{ color: 'var(--text-primary)' }}>
+                  {item.title || `Вопрос ${idx + 1}`}
+                </summary>
+                <div className="px-4 pb-4" style={{ color: 'var(--text-secondary)' }}>
+                  {item.content}
+                </div>
+              </details>
+            ))}
+          </div>
+        );
+        break;
+
+      case 'contact_info':
+        content = (
+          <div className="my-8 glass-card" data-testid="block-contact-info">
+            {block.content.title && (
+              <h3 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+                {block.content.title}
+              </h3>
+            )}
+            <div className="space-y-3">
+              {block.content.phone && (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📞</span>
+                  <a href={`tel:${block.content.phone}`} style={{ color: 'var(--text-accent)' }}>
+                    {block.content.phone}
+                  </a>
+                </div>
+              )}
+              {block.content.email && (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">✉️</span>
+                  <a href={`mailto:${block.content.email}`} style={{ color: 'var(--text-accent)' }}>
+                    {block.content.email}
+                  </a>
+                </div>
+              )}
+              {block.content.address && (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📍</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{block.content.address}</span>
+                </div>
+              )}
+              {block.content.hours && (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🕒</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{block.content.hours}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        break;
+
+      case 'tarot_card':
+        content = (
+          <div className="my-8 glass-card text-center" data-testid="block-tarot">
+            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              {block.content.title || '🔮 Карта Дня'}
+            </h3>
+            {block.content.cardName && (
+              <div className="text-6xl mb-4">{block.content.cardImage || '🃏'}</div>
+            )}
+            <p className="text-xl font-semibold mb-3" style={{ color: 'var(--text-accent)' }}>
+              {block.content.cardName || 'Таро карта дня'}
+            </p>
+            {block.content.description && (
+              <p style={{ color: 'var(--text-secondary)' }}>{block.content.description}</p>
+            )}
+          </div>
+        );
+        break;
+
+      case 'astro_widget':
+        content = (
+          <div className="my-8 glass-card text-center" data-testid="block-astro">
+            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              {block.content.title || '✨ Астрологический Виджет'}
+            </h3>
+            {block.content.zodiacSign && (
+              <div className="mb-4">
+                <div className="text-5xl mb-2">{block.content.zodiacIcon || '♈'}</div>
+                <p className="text-xl font-semibold" style={{ color: 'var(--text-accent)' }}>
+                  {block.content.zodiacSign}
+                </p>
+              </div>
+            )}
+            {block.content.horoscope && (
+              <p style={{ color: 'var(--text-secondary)' }}>{block.content.horoscope}</p>
+            )}
+            {block.content.moonPhase && (
+              <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  🌙 Фаза луны: {block.content.moonPhase}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+        break;
+
+      case 'calendar':
+        content = (
+          <div className="my-8 glass-card" data-testid="block-calendar">
+            <h3 className="text-2xl font-bold mb-4 text-center" style={{ color: 'var(--text-primary)' }}>
+              {block.content.title || '📅 Календарь Записи'}
+            </h3>
+            {block.content.embedCode ? (
+              <div dangerouslySetInnerHTML={{ __html: block.content.embedCode }} />
+            ) : (
+              <div className="text-center py-12" style={{ color: 'var(--text-secondary)' }}>
+                <p>Календарь бронирования будет добавлен позже</p>
+                {block.content.bookingLink && (
+                  <a 
+                    href={block.content.bookingLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block mt-4 px-6 py-2 rounded-lg"
+                    style={{ background: 'var(--button-bg)', color: 'var(--button-text)' }}
+                  >
+                    Записаться на консультацию
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        );
+        break;
+
       default:
         return null;
     }
 
-    return <div key={block.id} style={blockStyle}>{content}</div>;
+    return (
+      <div key={block.id} className={`${getBlockColumnClass()} mb-6`} data-testid={`block-${block.type}`}>
+        {content}
+      </div>
+    );
   };
 
   if (loading) {
