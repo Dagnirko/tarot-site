@@ -62,11 +62,12 @@ class Token(BaseModel):
 
 class BlockContent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    type: str  # text, heading, image, quote, video, html, services
+    type: str  # text, heading, image, quote, video, html, services, divider, button, cards, accordion, contact_info, tarot_card, astro_widget, calendar
     content: Dict[str, Any]
     order: int
     layout: str = "full"  # full, left, right, center
     width: str = "normal"  # normal, wide, narrow
+    column_span: int = 3  # 1, 2, or 3 columns
 
 class Page(BaseModel):
     model_config = ConfigDict(extra="ignore")
