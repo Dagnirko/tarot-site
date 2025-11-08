@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Image as ImageIcon, Tag } from 'lucide-react';
+import { ArrowLeft, Save, Tag } from 'lucide-react';
 import TiptapEditor from '@/components/TiptapEditor';
+import ImageUploader from '@/components/ImageUploader';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
