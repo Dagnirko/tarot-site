@@ -432,7 +432,7 @@ const HomePage = () => {
             <h1 className="text-4xl sm:text-5xl font-bold mb-8 text-center" style={{ color: 'var(--text-primary)' }}>
               {homepagePage.title}
             </h1>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {homepagePage.blocks.sort((a, b) => a.order - b.order).map(renderPageBlock)}
             </div>
           </div>
