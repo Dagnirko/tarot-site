@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Tag } from 'lucide-react';
+import { ArrowLeft, Save, Tag, Image as ImageIcon } from 'lucide-react';
 import TiptapEditor from '@/components/TiptapEditor';
 import ImageUploader from '@/components/ImageUploader';
 
@@ -127,23 +127,14 @@ const BlogEditor = () => {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium" style={{ color: 'var(--text-primary)' }}>
+                <label className="block mb-3 font-medium" style={{ color: 'var(--text-primary)' }}>
                   <ImageIcon className="inline mr-2" size={18} />
-                  URL изображения
+                  Изображение для поста
                 </label>
-                <Input
-                  data-testid="post-image-input"
-                  placeholder="https://example.com/image.jpg"
-                  value={postData.image_url}
-                  onChange={(e) => setPostData({ ...postData, image_url: e.target.value })}
+                <ImageUploader
+                  currentImageUrl={postData.image_url}
+                  onImageUploaded={(url) => setPostData({ ...postData, image_url: url })}
                 />
-                {postData.image_url && (
-                  <img 
-                    src={postData.image_url} 
-                    alt="Превью" 
-                    className="mt-3 w-full max-h-64 object-cover rounded-lg"
-                  />
-                )}
               </div>
 
               <div>
