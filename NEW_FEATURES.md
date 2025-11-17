@@ -193,22 +193,39 @@
 
 ---
 
-## 📁 Измененные Файлы
+## 📁 Измененные и Новые Файлы
 
 ### Backend:
-- `/app/backend/server.py` - добавлены новые типы блоков, `column_span`, endpoints для загрузки файлов
+- `/app/backend/server.py`:
+  - Модели: `TimeSlot`, `Appointment`, обновленный `Settings`
+  - API endpoints для календаря и записей
+  - Email уведомления при записях
+  - Поле `enabled_themes` в настройках
 
 ### Frontend - Компоненты:
-- `/app/frontend/src/components/ImageUploader.js` - новый компонент
-- `/app/frontend/src/components/TiptapEditor.js` - исправления и улучшения
+- `/app/frontend/src/components/ImageUploader.js` - загрузка изображений
+- `/app/frontend/src/components/TiptapEditor.js` - улучшенный редактор
+- `/app/frontend/src/components/CalendarBlock.js` - **НОВЫЙ** публичный календарь
 
 ### Frontend - Админка:
-- `/app/frontend/src/admin/PageEditor.js` - добавлены редакторы для всех новых блоков + column_span
-- `/app/frontend/src/admin/BlogEditor.js` - интегрирован ImageUploader
-- `/app/frontend/src/contexts/AdminThemeContext.js` - зафиксирована светлая тема
+- `/app/frontend/src/admin/PageEditor.js` - редакторы для всех блоков
+- `/app/frontend/src/admin/BlogEditor.js` - интеграция ImageUploader
+- `/app/frontend/src/admin/AdminSettings.js` - управление темами
+- `/app/frontend/src/admin/AdminCalendar.js` - **НОВЫЙ** управление календарем
+- `/app/frontend/src/admin/AdminDashboard.js` - добавлена ссылка на календарь
 
 ### Frontend - Публичная часть:
-- `/app/frontend/src/pages/HomePage.js` - рендеринг всех новых блоков + grid layout
+- `/app/frontend/src/pages/DynamicPage.js`:
+  - Рендеринг всех 15 типов блоков
+  - Grid система для column_span
+  - Интеграция CalendarBlock
+- `/app/frontend/src/contexts/ThemeContext.js`:
+  - Декорации для светлой темы
+  - Использование enabled_themes
+- `/app/frontend/src/App.js` - роут для AdminCalendar
+- `/app/frontend/src/App.css`:
+  - CSS для облаков и солнца
+  - Анимации float-clouds и gentle-pulse
 
 ---
 
