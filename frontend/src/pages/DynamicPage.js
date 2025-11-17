@@ -93,47 +93,18 @@ const DynamicPage = () => {
     }
   };
 
-  const getBlockWrapperStyle = (block) => {
-    const styles = {
-      marginBottom: '2rem'
-    };
-
-    // Width
-    switch (block.width) {
-      case 'narrow':
-        styles.maxWidth = '50%';
-        break;
-      case 'normal':
-        styles.maxWidth = '75%';
-        break;
-      case 'wide':
-        styles.maxWidth = '100%';
-        break;
+  const getBlockGridClass = (block) => {
+    // Используем column_span для определения ширины в grid системе
+    const span = block.column_span || 3;
+    switch (span) {
+      case 1:
+        return 'col-span-12 md:col-span-4'; // 33% на desktop
+      case 2:
+        return 'col-span-12 md:col-span-8'; // 66% на desktop
+      case 3:
       default:
-        styles.maxWidth = '75%';
+        return 'col-span-12'; // 100%
     }
-
-    // Layout/Position
-    switch (block.layout) {
-      case 'left':
-        styles.marginLeft = '0';
-        styles.marginRight = 'auto';
-        break;
-      case 'right':
-        styles.marginLeft = 'auto';
-        styles.marginRight = '0';
-        break;
-      case 'center':
-        styles.marginLeft = 'auto';
-        styles.marginRight = 'auto';
-        break;
-      case 'full':
-      default:
-        styles.maxWidth = '100%';
-        break;
-    }
-
-    return styles;
   };
 
   const renderBlock = (block) => {
