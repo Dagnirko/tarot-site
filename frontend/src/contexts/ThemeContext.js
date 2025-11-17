@@ -46,6 +46,14 @@ export const ThemeProvider = ({ children }) => {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, settings, refreshSettings: fetchSettings }}>
       <div className={`theme-${theme}`}>
+        {/* Light theme decorations */}
+        {theme === 'light' && (
+          <div className="light-bg">
+            <div className="clouds"></div>
+            <div className="sun"></div>
+          </div>
+        )}
+        {/* Dark theme decorations */}
         {isDarkTheme && theme === 'mystical' && (
           <div className="mystical-bg">
             <div className="stars"></div>
