@@ -30,14 +30,11 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const toggleTheme = () => {
-    const themes = [
-      'light', 'mystical', 
-      'winter', 'spring', 'summer', 'autumn',
-      'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto'
-    ];
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    // Используем только включенные темы из настроек
+    const enabledThemes = settings?.enabled_themes || ['light', 'mystical'];
+    const currentIndex = enabledThemes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % enabledThemes.length;
+    setTheme(enabledThemes[nextIndex]);
   };
 
   // Определяем, является ли тема темной
