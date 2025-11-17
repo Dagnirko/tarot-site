@@ -381,7 +381,7 @@ const DynamicPage = () => {
           <h1 className="text-4xl sm:text-5xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>
             {page.title}
           </h1>
-          <div className="space-y-6">
+          <div className="grid grid-cols-12 gap-6">
             {page.blocks.sort((a, b) => a.order - b.order).map(renderBlock)}
           </div>
         </div>
