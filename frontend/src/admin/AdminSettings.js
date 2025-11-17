@@ -162,30 +162,77 @@ const AdminSettings = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <div className="px-2 py-1 text-xs font-semibold text-gray-500">Основные темы</div>
-                  <SelectItem value="light">☀️ Светлая</SelectItem>
-                  <SelectItem value="mystical">🌙 Мистическая</SelectItem>
-                  
-                  <div className="px-2 py-1 text-xs font-semibold text-gray-500 mt-2">Времена года</div>
-                  <SelectItem value="winter">❄️ Зима</SelectItem>
-                  <SelectItem value="spring">🌸 Весна</SelectItem>
-                  <SelectItem value="summer">☀️ Лето</SelectItem>
-                  <SelectItem value="autumn">🍂 Осень</SelectItem>
-                  
-                  <div className="px-2 py-1 text-xs font-semibold text-gray-500 mt-2">Планеты</div>
-                  <SelectItem value="mercury">☿ Меркурий</SelectItem>
-                  <SelectItem value="venus">♀ Венера</SelectItem>
-                  <SelectItem value="mars">♂ Марс</SelectItem>
-                  <SelectItem value="jupiter">♃ Юпитер</SelectItem>
-                  <SelectItem value="saturn">♄ Сатурн</SelectItem>
-                  <SelectItem value="uranus">♅ Уран</SelectItem>
-                  <SelectItem value="neptune">♆ Нептун</SelectItem>
-                  <SelectItem value="pluto">♇ Плутон</SelectItem>
+                  {allThemes
+                    .filter(t => (settingsData.enabled_themes || []).includes(t.value))
+                    .reduce((acc, theme) => {
+                      const lastCategory = acc[acc.length - 1];
+                      if (!lastCategory || lastCategory.category !== theme.category) {
+                        acc.push({ category: theme.category, themes: [theme] });
+                      } else {
+                        lastCategory.themes.push(theme);
+                      }
+                      return acc;
+                    }, [])
+                    .map((group, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <div className="px-2 py-1 text-xs font-semibold text-gray-500 mt-2">{group.category}</div>}
+                        {idx === 0 && <div className="px-2 py-1 text-xs font-semibold text-gray-500">{group.category}</div>}
+                        {group.themes.map(theme => (
+                          <SelectItem key={theme.value} value={theme.value}>{theme.label}</SelectItem>
+                        ))}
+                      </React.Fragment>
+                    ))
+                  }
                 </SelectContent>
               </Select>
               <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
                 Пользователи могут переключать темы с помощью кнопки в шапке сайта.
               </p>
+            </CardContent>
+          </Card>
+
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle style={{ color: 'var(--text-primary)' }}>Управление Темами</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                Выберите темы, которые будут доступны пользователям для переключения
+              </p>
+              <div className="space-y-4">
+                {['Основные темы', 'Времена года', 'Планеты'].map(category => (
+                  <div key={category}>
+                    <h4 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>{category}</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {allThemes
+                        .filter(t => t.category === category)
+                        .map(theme => (
+                          <label
+                            key={theme.value}
+                            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-opacity-50"
+                            style={{
+                              background: (settingsData.enabled_themes || []).includes(theme.value)
+                                ? 'var(--button-bg)'
+                                : 'var(--bg-secondary)',
+                              color: (settingsData.enabled_themes || []).includes(theme.value)
+                                ? 'var(--button-text)'
+                                : 'var(--text-primary)'
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={(settingsData.enabled_themes || []).includes(theme.value)}
+                              onChange={() => toggleTheme(theme.value)}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">{theme.label}</span>
+                          </label>
+                        ))
+                      }
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
 
