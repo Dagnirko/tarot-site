@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { FileText, Mail, Settings, LayoutDashboard, BookOpen, Home, Sparkles, Moon, Sun } from 'lucide-react';
+import { FileText, Mail, Settings, LayoutDashboard, BookOpen, Home, Sparkles, Moon, Sun, Calendar } from 'lucide-react';
 import { useAdminTheme } from '@/contexts/AdminThemeContext';
 
 const AdminDashboard = () => {
