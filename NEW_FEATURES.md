@@ -280,10 +280,25 @@
 - Загрузка файлов: Хранение на диске сервера
 
 **API Endpoints:**
+
+*Основные:*
 - `POST /api/admin/upload-file` - загрузка файла
-- `GET /media/{filename}` - получение загруженного файла
+- `GET /api/media/{filename}` - получение загруженного файла
 - `GET /api/pages` - список страниц
 - `GET /api/homepage-page` - страница, отмеченная как homepage
+- `GET /api/settings` - получить настройки
+- `PUT /api/admin/settings` - обновить настройки
+
+*Календарь и записи:*
+- `GET /api/admin/timeslots` - все временные слоты (админ)
+- `POST /api/admin/timeslots` - создать слот (админ)
+- `PUT /api/admin/timeslots/{id}` - обновить слот (админ)
+- `DELETE /api/admin/timeslots/{id}` - удалить слот (админ)
+- `GET /api/timeslots/available` - доступные слоты (публичный)
+- `GET /api/admin/appointments` - все записи (админ)
+- `POST /api/appointments` - создать запись (публичный)
+- `PUT /api/admin/appointments/{id}` - обновить запись (админ)
+- `DELETE /api/admin/appointments/{id}` - удалить запись (админ)
 
 **CSS Grid для колонок:**
 ```css
