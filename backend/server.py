@@ -132,6 +132,7 @@ class Settings(BaseModel):
     site_description: str = ""
     admin_email: Optional[EmailStr] = None
     social_links: Dict[str, str] = {}
+    enabled_themes: List[str] = ["light", "mystical"]  # Список активных тем
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class SettingsUpdate(BaseModel):
@@ -140,6 +141,7 @@ class SettingsUpdate(BaseModel):
     site_description: Optional[str] = None
     admin_email: Optional[EmailStr] = None
     social_links: Optional[Dict[str, str]] = None
+    enabled_themes: Optional[List[str]] = None
 
 class MediaItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
