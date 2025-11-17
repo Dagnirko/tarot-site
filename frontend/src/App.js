@@ -16,6 +16,7 @@ import AdminBlog from '@/admin/AdminBlog';
 import BlogEditor from '@/admin/BlogEditor';
 import AdminHomePage from '@/admin/AdminHomePage';
 import AdminServices from '@/admin/AdminServices';
+import AdminCalendar from '@/admin/AdminCalendar';
 import '@/App.css';
 
 function App() {
