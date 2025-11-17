@@ -283,15 +283,7 @@ const DynamicPage = () => {
         break;
       case 'calendar':
         content = (
-          <div className="glass-card mb-6">
-            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
-              {block.content.title || 'Запись на консультацию'}
-            </h3>
-            <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
-              <LucideIcons.Calendar size={48} className="mx-auto mb-4" style={{ color: 'var(--text-accent)' }} />
-              <p>Календарь для записи будет здесь</p>
-            </div>
-          </div>
+          <CalendarBlock title={block.content.title} />
         );
         break;
       case 'services':
