@@ -13,6 +13,7 @@ const AdminDashboard = () => {
     { title: 'Услуги', icon: Sparkles, link: '/admin/services', desc: 'Управление услугами на главной странице' },
     { title: 'Блог', icon: BookOpen, link: '/admin/blog', desc: 'Управление постами блога' },
     { title: 'Страницы', icon: FileText, link: '/admin/pages', desc: 'Управление страницами сайта' },
+    { title: 'Календарь', icon: Calendar, link: '/admin/calendar', desc: 'Управление записями на консультацию' },
     { title: 'Сообщения', icon: Mail, link: '/admin/contacts', desc: 'Просмотр сообщений' },
     { title: 'Настройки', icon: Settings, link: '/admin/settings', desc: 'Настройки сайта' },
   ];
