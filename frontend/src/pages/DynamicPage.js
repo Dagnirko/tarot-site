@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, X } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import CalendarBlock from '@/components/CalendarBlock';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
