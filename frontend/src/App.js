@@ -39,6 +39,7 @@ function App() {
             <Route path="/admin/blog/edit/:postId" element={<BlogEditor />} />
             <Route path="/admin/home" element={<AdminHomePage />} />
             <Route path="/admin/services" element={<AdminServices />} />
+            <Route path="/admin/calendar" element={<AdminCalendar />} />
             <Route path="/admin/contacts" element={<AdminContacts />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Routes>
