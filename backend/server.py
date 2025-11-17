@@ -799,6 +799,142 @@ async def update_user_preferences(prefs_data: UserPreferencesUpdate, username: s
         preferences['updated_at'] = datetime.fromisoformat(preferences['updated_at'])
     return preferences
 
+# ============= CALENDAR & APPOINTMENTS ROUTES =============
+
+@api_router.get("/admin/timeslots", response_model=List[TimeSlot])
+async def get_all_timeslots():
+    """Get all time slots for admin"""
+    slots = await db.time_slots.find({}, {"_id": 0}).sort("date", 1).to_list(500)
+    for slot in slots:
+        if isinstance(slot.get('created_at'), str):
+            slot['created_at'] = datetime.fromisoformat(slot['created_at'])
+    return slots
+
+@api_router.post("/admin/timeslots", response_model=TimeSlot)
+async def create_timeslot(slot_data: TimeSlotCreate):
+    """Create a new time slot"""
+    slot = TimeSlot(**slot_data.model_dump())
+    doc = slot.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.time_slots.insert_one(doc)
+    return slot
+
+@api_router.put("/admin/timeslots/{slot_id}", response_model=TimeSlot)
+async def update_timeslot(slot_id: str, slot_data: TimeSlotUpdate):
+    """Update time slot availability"""
+    existing = await db.time_slots.find_one({"id": slot_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Time slot not found")
+    
+    update_dict = {k: v for k, v in slot_data.model_dump().items() if v is not None}
+    await db.time_slots.update_one({"id": slot_id}, {"$set": update_dict})
+    
+    updated_slot = await db.time_slots.find_one({"id": slot_id}, {"_id": 0})
+    if isinstance(updated_slot.get('created_at'), str):
+        updated_slot['created_at'] = datetime.fromisoformat(updated_slot['created_at'])
+    return updated_slot
+
+@api_router.delete("/admin/timeslots/{slot_id}")
+async def delete_timeslot(slot_id: str):
+    """Delete a time slot"""
+    result = await db.time_slots.delete_one({"id": slot_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Time slot not found")
+    return {"message": "Time slot deleted successfully"}
+
+@api_router.get("/timeslots/available", response_model=List[TimeSlot])
+async def get_available_timeslots():
+    """Get all available time slots for public booking"""
+    slots = await db.time_slots.find({"available": True}, {"_id": 0}).sort("date", 1).to_list(500)
+    for slot in slots:
+        if isinstance(slot.get('created_at'), str):
+            slot['created_at'] = datetime.fromisoformat(slot['created_at'])
+    return slots
+
+@api_router.get("/admin/appointments", response_model=List[Appointment])
+async def get_all_appointments():
+    """Get all appointments for admin"""
+    appointments = await db.appointments.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    for appointment in appointments:
+        if isinstance(appointment.get('created_at'), str):
+            appointment['created_at'] = datetime.fromisoformat(appointment['created_at'])
+    return appointments
+
+@api_router.post("/appointments", response_model=Appointment)
+async def create_appointment(appointment_data: AppointmentCreate):
+    """Create a new appointment (public endpoint)"""
+    # Check if slot exists and is available
+    slot = await db.time_slots.find_one({"id": appointment_data.slot_id})
+    if not slot:
+        raise HTTPException(status_code=404, detail="Time slot not found")
+    if not slot.get("available"):
+        raise HTTPException(status_code=400, detail="Time slot is not available")
+    
+    # Create appointment
+    appointment = Appointment(**appointment_data.model_dump())
+    doc = appointment.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    await db.appointments.insert_one(doc)
+    
+    # Mark slot as unavailable
+    await db.time_slots.update_one({"id": appointment_data.slot_id}, {"$set": {"available": False}})
+    
+    # Send notification email to admin
+    settings = await db.settings.find_one({"id": "site_settings"})
+    if settings and settings.get('admin_email'):
+        email_content = f"""
+        <html>
+            <body>
+                <h2>Новая запись на консультацию</h2>
+                <p><strong>Имя:</strong> {appointment.name}</p>
+                <p><strong>Email:</strong> {appointment.email}</p>
+                <p><strong>Телефон:</strong> {appointment.phone or 'Не указан'}</p>
+                <p><strong>Дата:</strong> {slot['date']}</p>
+                <p><strong>Время:</strong> {slot['start_time']} - {slot['end_time']}</p>
+                <p><strong>Сообщение:</strong> {appointment.message or 'Нет сообщения'}</p>
+            </body>
+        </html>
+        """
+        send_email_notification(
+            to_email=settings['admin_email'],
+            subject="Новая запись на консультацию",
+            content=email_content
+        )
+    
+    return appointment
+
+@api_router.put("/admin/appointments/{appointment_id}", response_model=Appointment)
+async def update_appointment(appointment_id: str, appointment_data: AppointmentUpdate):
+    """Update appointment status"""
+    existing = await db.appointments.find_one({"id": appointment_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    update_dict = {k: v for k, v in appointment_data.model_dump().items() if v is not None}
+    await db.appointments.update_one({"id": appointment_id}, {"$set": update_dict})
+    
+    # If appointment is cancelled, make slot available again
+    if update_dict.get("status") == "cancelled":
+        await db.time_slots.update_one({"id": existing["slot_id"]}, {"$set": {"available": True}})
+    
+    updated_appointment = await db.appointments.find_one({"id": appointment_id}, {"_id": 0})
+    if isinstance(updated_appointment.get('created_at'), str):
+        updated_appointment['created_at'] = datetime.fromisoformat(updated_appointment['created_at'])
+    return updated_appointment
+
+@api_router.delete("/admin/appointments/{appointment_id}")
+async def delete_appointment(appointment_id: str):
+    """Delete an appointment"""
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Make slot available again
+    await db.time_slots.update_one({"id": appointment["slot_id"]}, {"$set": {"available": True}})
+    
+    result = await db.appointments.delete_one({"id": appointment_id})
+    return {"message": "Appointment deleted successfully"}
+
 # Include router
 app.include_router(api_router)
 
