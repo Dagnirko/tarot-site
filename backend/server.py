@@ -233,6 +233,45 @@ class UserPreferences(BaseModel):
 class UserPreferencesUpdate(BaseModel):
     admin_theme: Optional[str] = None
 
+class TimeSlot(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    date: str  # YYYY-MM-DD
+    start_time: str  # HH:MM
+    end_time: str  # HH:MM
+    available: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class TimeSlotCreate(BaseModel):
+    date: str
+    start_time: str
+    end_time: str
+    available: bool = True
+
+class TimeSlotUpdate(BaseModel):
+    available: Optional[bool] = None
+
+class Appointment(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    slot_id: str
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    message: Optional[str] = None
+    status: str = "pending"  # pending, confirmed, cancelled
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AppointmentCreate(BaseModel):
+    slot_id: str
+    name: str
+    email: EmailStr
+    phone: Optional[str] = None
+    message: Optional[str] = None
+
+class AppointmentUpdate(BaseModel):
+    status: Optional[str] = None
+
 # ============= UTILITIES =============
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
