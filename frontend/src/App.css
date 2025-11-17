@@ -458,6 +458,68 @@ body.admin-theme-dark {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
+/* Light Theme Decorations */
+.theme-light .light-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.theme-light .clouds {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(ellipse 200px 80px at 20% 30%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(ellipse 250px 100px at 60% 50%, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(ellipse 180px 70px at 80% 70%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(ellipse 220px 90px at 40% 80%, rgba(255, 255, 255, 0.3), transparent);
+  background-size: 100% 100%;
+  animation: float-clouds 60s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes float-clouds {
+  0%, 100% { 
+    transform: translateX(0) translateY(0);
+    opacity: 0.6;
+  }
+  50% { 
+    transform: translateX(50px) translateY(-20px);
+    opacity: 0.4;
+  }
+}
+
+.theme-light .sun {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fffacd, #ffd700);
+  box-shadow: 0 0 60px rgba(255, 215, 0, 0.5),
+              0 0 100px rgba(255, 215, 0, 0.3);
+  opacity: 0.7;
+  animation: gentle-pulse 4s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
 /* Mystical Theme Decorations */
 .theme-mystical .mystical-bg {
   position: fixed;
