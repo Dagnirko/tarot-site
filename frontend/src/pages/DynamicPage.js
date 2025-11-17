@@ -108,7 +108,7 @@ const DynamicPage = () => {
   };
 
   const renderBlock = (block) => {
-    const blockStyle = getBlockWrapperStyle(block);
+    const gridClass = getBlockGridClass(block);
     
     let content = null;
 
@@ -162,6 +162,137 @@ const DynamicPage = () => {
           <div className="mb-6" dangerouslySetInnerHTML={{ __html: block.content.code }} />
         );
         break;
+      case 'button':
+        content = (
+          <div className="mb-6 text-center">
+            <a
+              href={block.content.url || '#'}
+              className={`btn-primary inline-block ${block.content.style === 'outline' ? 'border-2' : ''}`}
+              style={
+                block.content.style === 'outline'
+                  ? { background: 'transparent', border: `2px solid var(--button-bg)`, color: 'var(--button-bg)' }
+                  : block.content.style === 'secondary'
+                  ? { background: 'var(--bg-secondary)', color: 'var(--text-primary)' }
+                  : {}
+              }
+            >
+              {block.content.text || 'Кнопка'}
+            </a>
+          </div>
+        );
+        break;
+      case 'divider':
+        content = (
+          <hr 
+            className="my-8" 
+            style={{ 
+              borderStyle: block.content.style || 'solid',
+              borderColor: 'var(--border-color)',
+              borderWidth: '1px'
+            }} 
+          />
+        );
+        break;
+      case 'cards':
+        content = (
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            {(block.content.items || []).map((card, idx) => {
+              const IconComponent = LucideIcons[card.icon] || LucideIcons.Star;
+              return (
+                <div key={idx} className="glass-card">
+                  <div className="flex items-center gap-3 mb-3">
+                    <IconComponent size={28} style={{ color: 'var(--text-accent)' }} />
+                    <h4 className="text-lg font-semibold" style={{ color: 'var(--text-accent)' }}>
+                      {card.title}
+                    </h4>
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)' }}>{card.text}</p>
+                </div>
+              );
+            })}
+          </div>
+        );
+        break;
+      case 'accordion':
+        content = (
+          <div className="space-y-3 mb-6">
+            {(block.content.items || []).map((item, idx) => (
+              <details key={idx} className="glass-card">
+                <summary className="font-semibold cursor-pointer" style={{ color: 'var(--text-accent)' }}>
+                  {item.title}
+                </summary>
+                <p className="mt-3" style={{ color: 'var(--text-secondary)' }}>{item.content}</p>
+              </details>
+            ))}
+          </div>
+        );
+        break;
+      case 'contact_info':
+        content = (
+          <div className="glass-card mb-6">
+            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Контактная информация</h3>
+            <div className="space-y-3">
+              {block.content.phone && (
+                <div className="flex items-center gap-3">
+                  <LucideIcons.Phone size={20} style={{ color: 'var(--text-accent)' }} />
+                  <a href={`tel:${block.content.phone}`} style={{ color: 'var(--text-secondary)' }}>{block.content.phone}</a>
+                </div>
+              )}
+              {block.content.email && (
+                <div className="flex items-center gap-3">
+                  <LucideIcons.Mail size={20} style={{ color: 'var(--text-accent)' }} />
+                  <a href={`mailto:${block.content.email}`} style={{ color: 'var(--text-secondary)' }}>{block.content.email}</a>
+                </div>
+              )}
+              {block.content.address && (
+                <div className="flex items-center gap-3">
+                  <LucideIcons.MapPin size={20} style={{ color: 'var(--text-accent)' }} />
+                  <span style={{ color: 'var(--text-secondary)' }}>{block.content.address}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        break;
+      case 'tarot_card':
+        content = (
+          <div className="glass-card mb-6 text-center">
+            <LucideIcons.Sparkles size={48} className="mx-auto mb-4" style={{ color: 'var(--text-accent)' }} />
+            <h3 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+              {block.content.card_name || 'Карта Таро'}
+            </h3>
+            <p style={{ color: 'var(--text-secondary)' }}>{block.content.description}</p>
+          </div>
+        );
+        break;
+      case 'astro_widget':
+        content = (
+          <div className="glass-card mb-6">
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <LucideIcons.Star size={24} style={{ color: 'var(--text-accent)' }} />
+              {block.content.widget_type === 'moon_phase' && 'Фаза Луны'}
+              {block.content.widget_type === 'zodiac_signs' && 'Знаки Зодиака'}
+              {block.content.widget_type === 'planetary_hours' && 'Планетарные Часы'}
+            </h3>
+            <div className="text-center" style={{ color: 'var(--text-secondary)' }}>
+              <p>Астрологическая информация будет отображаться здесь</p>
+            </div>
+          </div>
+        );
+        break;
+      case 'calendar':
+        content = (
+          <div className="glass-card mb-6">
+            <h3 className="text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              {block.content.title || 'Запись на консультацию'}
+            </h3>
+            <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
+              <LucideIcons.Calendar size={48} className="mx-auto mb-4" style={{ color: 'var(--text-accent)' }} />
+              <p>Календарь для записи будет здесь</p>
+            </div>
+          </div>
+        );
+        break;
       case 'services':
         content = (
           <div className="mb-12">
@@ -203,7 +334,7 @@ const DynamicPage = () => {
     }
 
     return (
-      <div key={block.id} style={blockStyle}>
+      <div key={block.id} className={gridClass}>
         {content}
       </div>
     );
