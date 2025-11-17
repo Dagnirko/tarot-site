@@ -20,7 +20,45 @@ const AdminSettings = () => {
     site_title: 'Таролог-Астролог',
     site_description: '',
     admin_email: '',
+    enabled_themes: ['light', 'mystical'],
   });
+
+  const allThemes = [
+    { value: 'light', label: '☀️ Светлая', category: 'Основные темы' },
+    { value: 'mystical', label: '🌙 Мистическая', category: 'Основные темы' },
+    { value: 'winter', label: '❄️ Зима', category: 'Времена года' },
+    { value: 'spring', label: '🌸 Весна', category: 'Времена года' },
+    { value: 'summer', label: '☀️ Лето', category: 'Времена года' },
+    { value: 'autumn', label: '🍂 Осень', category: 'Времена года' },
+    { value: 'mercury', label: '☿ Меркурий', category: 'Планеты' },
+    { value: 'venus', label: '♀ Венера', category: 'Планеты' },
+    { value: 'mars', label: '♂ Марс', category: 'Планеты' },
+    { value: 'jupiter', label: '♃ Юпитер', category: 'Планеты' },
+    { value: 'saturn', label: '♄ Сатурн', category: 'Планеты' },
+    { value: 'uranus', label: '♅ Уран', category: 'Планеты' },
+    { value: 'neptune', label: '♆ Нептун', category: 'Планеты' },
+    { value: 'pluto', label: '♇ Плутон', category: 'Планеты' },
+  ];
+
+  const toggleTheme = (themeValue) => {
+    const enabled = settingsData.enabled_themes || [];
+    if (enabled.includes(themeValue)) {
+      // Don't allow disabling if it's the only theme
+      if (enabled.length > 1) {
+        setSettingsData({
+          ...settingsData,
+          enabled_themes: enabled.filter(t => t !== themeValue)
+        });
+      } else {
+        toast.error('Должна быть хотя бы одна активная тема');
+      }
+    } else {
+      setSettingsData({
+        ...settingsData,
+        enabled_themes: [...enabled, themeValue]
+      });
+    }
+  };
 
   useEffect(() => {
     fetchSettings();
